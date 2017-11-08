@@ -6,6 +6,7 @@
 package br.ufsc.inf.ine5608.cliente;
 
 import br.ufsc.inf.ine5608.rede.AtorNetGames;
+import br.ufsc.inf.ine5608.rede.Jogador;
 import br.ufsc.inf.ine5608.rede.Lance;
 import br.ufsc.inf.ine5608.rede.Posicao;
 
@@ -17,6 +18,8 @@ public class AtorJogador extends javax.swing.JFrame {
 
     private Tabuleiro tabuleiro;
     private AtorNetGames atorNetGames;
+    private String nomeJogador;
+    private Jogador jogador;
 
     /**
      * Creates new form InterfaceJogo
@@ -39,32 +42,44 @@ public class AtorJogador extends javax.swing.JFrame {
     }
 
     public void receberLance(Lance lance) {
-        System.out.println("Jogador recebeu lance do adversário.");
+        tabuleiro.atualizarTabuleiro(lance);
     }
 
+    //Método é chamado quando é recebida a solicitação de inicio
     public void iniciarPartidaRede(boolean vezDoJogadorLocal) {
         //Trata a inicialização do tabuleiro e da interfaçe grafica
         String nomeAdversario = atorNetGames.obterNomeAdversario();
+        String nomeJogadorLocal = nomeJogador;
         if (vezDoJogadorLocal) {
-            btn_conectar.setText(nomeAdversario);
+            tabuleiro.inicializarJogadores(nomeJogadorLocal, nomeAdversario);
+            jogador = tabuleiro.getJogadorLocal(true);
         } else {
-            btn_conectar.setText(nomeAdversario);
+            tabuleiro.inicializarJogadores(nomeAdversario,nomeJogadorLocal);
+            jogador = tabuleiro.getJogadorLocal(false);            
         }
+        
+        tabuleiro.inicializarPersonagens();
     }
 
     public boolean enviarLance(Lance lance) {
         if (atorNetGames.isVezDoJogadorLocal()) {
-            //Tratar lance
             boolean lanceValido = tabuleiro.validarLance(lance);
             if (lanceValido) {
                 atorNetGames.enviarLance(lance);
-                System.out.println("Lance enviado");
                 return true;
             }
         }
         return false;
     }
 
+    public void conexaoPerdida() {
+        if (tabuleiro.IsPartidaEmAndamento()){
+            
+        } else{
+            btn_conectar.setText("Conectar");
+            btn_conectar.setEnabled(true);
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -74,20 +89,21 @@ public class AtorJogador extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        txt_field_player_name = new javax.swing.JTextField();
-        btn_conectar = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
         btn_enviar_lance = new javax.swing.JButton();
+        label_vezDeQuem = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        btn_conectar = new javax.swing.JButton();
+        txt_field_player_name = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        btn_regras = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(500, 400));
+        setPreferredSize(new java.awt.Dimension(500, 400));
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        txt_field_player_name.setText("Player1");
-
-        btn_conectar.setText("Conectar");
-        btn_conectar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_conectarActionPerformed(evt);
-            }
-        });
+        jPanel2.setPreferredSize(new java.awt.Dimension(500, 400));
 
         btn_enviar_lance.setText("Enviar");
         btn_enviar_lance.addActionListener(new java.awt.event.ActionListener() {
@@ -96,40 +112,89 @@ public class AtorJogador extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(133, 133, 133)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btn_conectar)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(8, 8, 8)
-                        .addComponent(txt_field_player_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(190, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+        label_vezDeQuem.setText("VEZ DE QUEM");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(221, 221, 221)
+                .addComponent(label_vezDeQuem)
+                .addContainerGap(213, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btn_enviar_lance)
-                .addGap(79, 79, 79))
+                .addGap(72, 72, 72))
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(37, 37, 37)
-                .addComponent(txt_field_player_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(56, 56, 56)
-                .addComponent(btn_conectar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 75, Short.MAX_VALUE)
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(label_vezDeQuem)
+                .addGap(96, 96, 96)
                 .addComponent(btn_enviar_lance)
-                .addGap(66, 66, 66))
+                .addContainerGap(256, Short.MAX_VALUE))
         );
+
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
+        jPanel1.setPreferredSize(new java.awt.Dimension(500, 400));
+
+        btn_conectar.setText("Conectar");
+        btn_conectar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_conectarActionPerformed(evt);
+            }
+        });
+
+        txt_field_player_name.setText("Player1");
+
+        jLabel1.setText("Nome");
+
+        btn_regras.setText("Regras");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(157, 157, 157)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btn_regras)
+                    .addComponent(btn_conectar)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(18, 18, 18)
+                        .addComponent(txt_field_player_name, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(245, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(115, 115, 115)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txt_field_player_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addGap(29, 29, 29)
+                .addComponent(btn_conectar)
+                .addGap(45, 45, 45)
+                .addComponent(btn_regras)
+                .addContainerGap(145, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_conectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_conectarActionPerformed
-        atorNetGames.conectar("127.0.0.1", txt_field_player_name.getText());
+        String nomeJogador = txt_field_player_name.getText();
+        if (!atorNetGames.isConectado() && atorNetGames.conectar("127.0.0.1", nomeJogador)){
+            this.nomeJogador = nomeJogador;
+            btn_conectar.setText("Procurando Adversário");
+            btn_conectar.setEnabled(false);
+        }
     }//GEN-LAST:event_btn_conectarActionPerformed
 
     private void btn_enviar_lanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_enviar_lanceActionPerformed
@@ -179,6 +244,12 @@ public class AtorJogador extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_conectar;
     private javax.swing.JButton btn_enviar_lance;
+    private javax.swing.JButton btn_regras;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JLabel label_vezDeQuem;
     private javax.swing.JTextField txt_field_player_name;
     // End of variables declaration//GEN-END:variables
+
 }

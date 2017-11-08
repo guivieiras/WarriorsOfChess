@@ -12,5 +12,24 @@ import br.ufsc.inf.leobr.cliente.Jogada;
  * @author Guilherme
  */
 public class Personagem {
+    private int[][] matrizDeAtaque;
+    private int[][] matrizDeMovimentacao;
+
+    public int[][] getMatrizDeAtaque() {
+        return matrizDeAtaque;
+    }
+
+    public void setMatrizDeAtaque(int[][] matrizDeAtaque) {
+        this.matrizDeAtaque = matrizDeAtaque;
+    }
+
+    public int[][] getMatrizDeMovimentacao() {
+        return matrizDeMovimentacao;
+    }
+
+    public void setMatrizDeMovimentacao(int[][] matrizDeMovimentacao) {
+        this.matrizDeMovimentacao = matrizDeMovimentacao;
+    }
+    
     
 }

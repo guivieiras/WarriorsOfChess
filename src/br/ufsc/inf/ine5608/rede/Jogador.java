@@ -12,5 +12,28 @@ import br.ufsc.inf.leobr.cliente.Jogada;
  * @author Guilherme
  */
 public class Jogador {
+
+    private String nome;
+    private Personagem[] personagens = new Personagem[3];
     
+    public Jogador(String nome) {
+        this.nome = nome;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public Personagem[] getPersonagens() {
+        return personagens;
+    }
+
+    public void setPersonagen(int index, Personagem personagem) {
+        personagens[index] = personagem;
+    }
+   
 }

@@ -25,6 +25,8 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
     private Proxy proxy;
     private AtorJogador atorJogador;
     private boolean vezDoJogadorLocal = false;
+    private boolean isConectado = false;
+    private boolean isPartidaEmAndamento = false;
     
     public AtorNetGames(AtorJogador atorJogador){
         super();
@@ -35,10 +37,12 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
 
 
     
-    public void conectar(String servidor, String nome){
+    public boolean conectar(String servidor, String nome){
         try {
             proxy.conectar(servidor, nome);
+            isConectado = true;
             iniciarPartidaRede();
+            return true;
         } catch (JahConectadoException ex) {
             Logger.getLogger(AtorNetGames.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NaoPossivelConectarException ex) {
@@ -46,6 +50,7 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
         } catch (ArquivoMultiplayerException ex) {
             Logger.getLogger(AtorNetGames.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
     }
     
     public void iniciarPartidaRede(){
@@ -88,7 +93,7 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
 
     @Override
     public void finalizarPartidaComErro(String message) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        isPartidaEmAndamento = false;
     }
 
     @Override
@@ -101,11 +106,13 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
         Lance lance = (Lance) jogada;
         atorJogador.receberLance(lance);
         vezDoJogadorLocal = true;
+        
     }
-
+   
     @Override
     public void tratarConexaoPerdida() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        isConectado = false;
+        atorJogador.conexaoPerdida();
     }
 
     @Override
@@ -120,9 +127,16 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
             return proxy.obterNomeAdversario(1);
         
     }
+        
 
     public boolean isVezDoJogadorLocal() {
         return vezDoJogadorLocal;
     }
+
+    public boolean isConectado() {
+        return isConectado;
+    }
+
+    
     
 }
