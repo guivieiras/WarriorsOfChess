@@ -27,6 +27,7 @@ public class Main {
 	janela = new AtorJogador();
 	janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	janela.setVisible(true);
+
     }
     
 }

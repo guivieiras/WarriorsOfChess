@@ -41,7 +41,6 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
         try {
             proxy.conectar(servidor, nome);
             isConectado = true;
-            iniciarPartidaRede();
             return true;
         } catch (JahConectadoException ex) {
             Logger.getLogger(AtorNetGames.class.getName()).log(Level.SEVERE, null, ex);
@@ -61,13 +60,15 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
         }
     }
     
-    public void enviarLance(Lance lance){
+    public boolean enviarLance(Lance lance){
         try {
             proxy.enviaJogada(lance);
             vezDoJogadorLocal = false;
+            return true;
         } catch (NaoJogandoException ex) {
             Logger.getLogger(AtorNetGames.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
     }
     
     public void desconectar(){
@@ -94,6 +95,7 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
     @Override
     public void finalizarPartidaComErro(String message) {
         isPartidaEmAndamento = false;
+        atorJogador.encerraPartida(message);
     }
 
     @Override

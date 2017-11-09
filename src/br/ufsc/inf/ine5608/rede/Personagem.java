@@ -10,11 +10,28 @@ import br.ufsc.inf.leobr.cliente.Jogada;
 /**
  *
  * @author Guilherme
- */
+ */ 
 public class Personagem {
     private int[][] matrizDeAtaque;
     private int[][] matrizDeMovimentacao;
+    private Posicao posicao;
+    private TipoGuerreiro tipoGuerreiro;
+    
+  
+    
+    public Personagem(int x, int y, TipoGuerreiro tipoGuerreiro){
+        posicao = new Posicao(x, y);
+        this.tipoGuerreiro = tipoGuerreiro;
+    }
 
+    public TipoGuerreiro getTipoGuerreiro() {
+        return tipoGuerreiro;
+    }
+
+    public Posicao getPosicao() {
+        return posicao;
+    }
+    
     public int[][] getMatrizDeAtaque() {
         return matrizDeAtaque;
     }
