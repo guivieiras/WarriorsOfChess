@@ -6,6 +6,7 @@
 package br.ufsc.inf.ine5608.rede;
 
 import br.ufsc.inf.leobr.cliente.Jogada;
+import java.awt.Image;
 import javax.swing.ImageIcon;
 
 /**
@@ -21,12 +22,47 @@ public class Personagem {
     private ImageIcon icon;
     private Jogador owner;
 
+    static int[][] matrix1 = {{0, 1, 0},
+        {1, 0, 1},
+        {0, 1, 0}};
 
+     static   int[][] matrix2 = {{0, 1, 0},
+        {1, 0, 1},
+        {0, 1, 0}};
+
+      static  int[][] matrix3 = {
+            {0, 0, 1, 0 ,0},
+            {0, 0, 1, 0, 0},
+            {1, 1, 0, 1, 1},
+            {0, 0, 1, 0, 0},
+            {0, 0, 1, 0, 0}};
   
-    
-    public Personagem(int x, int y, TipoGuerreiro tipoGuerreiro){
+       static ImageIcon warrior = new ImageIcon( new javax.swing.ImageIcon(Personagem.class.getResource("/resources/warrior.png")).getImage().getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING));
+      static  ImageIcon mage = new ImageIcon(new javax.swing.ImageIcon(Personagem.class.getResource("/resources/mage.png")).getImage().getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING));
+static        ImageIcon ranger = new ImageIcon( new javax.swing.ImageIcon(Personagem.class.getResource("/resources/ranger.png")).getImage().getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING));
+        
+    public Personagem(int x, int y, TipoGuerreiro tipoGuerreiro, Jogador owner){
         posicao = new Posicao(x, y);
         this.tipoGuerreiro = tipoGuerreiro;
+        setOwner(owner);
+        
+        switch(tipoGuerreiro){
+            case Mage:
+                setMatrizDeAtaque(matrix1);
+                setMatrizDeMovimentacao(matrix2);
+                setIcon(mage);
+                break;
+            case Ranger:
+                setMatrizDeAtaque(matrix3);
+                setMatrizDeMovimentacao(matrix3);
+                setIcon(ranger);
+                break;
+            case Warrior:
+                setMatrizDeAtaque(matrix3);
+                setMatrizDeMovimentacao(matrix1);
+                setIcon(warrior);
+                break;
+        }
     }
 
     public Jogador getOwner() {
@@ -103,6 +139,7 @@ public class Personagem {
 
     public void matar() {
         isVivo = false;
+        posicao = new Posicao(-1,-1);
     }
 
     public void setPosicao(Posicao posicao) {

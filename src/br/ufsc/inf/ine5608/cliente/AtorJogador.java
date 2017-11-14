@@ -51,7 +51,7 @@ public class AtorJogador extends javax.swing.JFrame {
         // this.setSize(260, 330);
         this.setContentPane(getContentPane());
         this.setTitle("Warriors Of Chess");
-        tabuleiro = new Tabuleiro();
+        tabuleiro = new Tabuleiro(this);
 
         showMenu();
     }
@@ -210,8 +210,9 @@ public class AtorJogador extends javax.swing.JFrame {
     }
     
     private void matarPersonagem(Personagem alvo){
-        alvo.matar();
         posicoesBotoes[alvo.getPosicao().getX()][alvo.getPosicao().getY()].setIcon(null);
+        posicoesBotoes[alvo.getPosicao().getX()][alvo.getPosicao().getY()].setBackground(Color.WHITE);
+        alvo.matar(); 
     }
     
     private void moverPersonagem(Personagem atuante, Posicao posicao){
@@ -221,7 +222,7 @@ public class AtorJogador extends javax.swing.JFrame {
         
         atuante.setPosicao(posicao);
         
-        JButton btnFinal = posicoesBotoes[atuante.getPosicao().getX()][atuante.getPosicao().getY()];
+        JButton btnFinal = posicoesBotoes[posicao.getX()][posicao.getY()];
         btnFinal.setIcon(atuante.getIcon());
         
         if (atuante.getOwner() == tabuleiro.getJogadorLocal()){

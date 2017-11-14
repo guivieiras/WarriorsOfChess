@@ -37,8 +37,8 @@ public class Tabuleiro {
      public static final int LINHAS = 13;
      public static final int COLUNAS = 10;
     
-    public Tabuleiro() {
-
+    public Tabuleiro(AtorJogador tela) {
+        this.tela = tela;
     }
 
     public void inicializarJogadores(String nome1, String nome2, boolean localJogaPrimeiro) {
@@ -57,68 +57,31 @@ public class Tabuleiro {
     }
 
     public Personagem[] inicializarPersonagens() {
-        ImageIcon warrior = new ImageIcon( new javax.swing.ImageIcon(getClass().getResource("/resources/warrior.png")).getImage().getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING));
-        ImageIcon mage = new ImageIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/mage.png")).getImage().getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING));
-        ImageIcon ranger = new ImageIcon( new javax.swing.ImageIcon(getClass().getResource("/resources/ranger.png")).getImage().getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING));
-        
+     
         Personagem[] personagens = new Personagem[6];
-        int[][] matrix1 = {{0, 1, 0},
-        {1, 0, 1},
-        {0, 1, 0}};
+       
 
-        int[][] matrix2 = {{0, 1, 0},
-        {1, 0, 1},
-        {0, 1, 0}};
-
-        int[][] matrix3 = {{0, 1, 0},
-        {1, 0, 1},
-        {0, 1, 0}};
-
-        Personagem p = new Personagem(0, 0, TipoGuerreiro.Mage);
-        p.setMatrizDeAtaque(matrix1);
-        p.setMatrizDeMovimentacao(matrix2);
-        p.setIcon(mage);
-        p.setOwner(jogador1);
+        Personagem p = new Personagem(0, 0, TipoGuerreiro.Mage, jogador1);
         jogador1.setPersonagen(0, p);
         personagens[0] = p;
 
-        p = new Personagem(0, 1, TipoGuerreiro.Warrior);
-        p.setMatrizDeAtaque(matrix3);
-        p.setMatrizDeMovimentacao(matrix1);
-        p.setIcon(warrior);
-        p.setOwner(jogador1);
+        p = new Personagem(0, 1, TipoGuerreiro.Warrior, jogador1);
         jogador1.setPersonagen(1, p);
         personagens[1] = p;
 
-        p = new Personagem(0, 2, TipoGuerreiro.Ranger);
-        p.setMatrizDeAtaque(matrix2);
-        p.setMatrizDeMovimentacao(matrix3);
-        p.setIcon(ranger);
-        p.setOwner(jogador1);
+        p = new Personagem(0, 2, TipoGuerreiro.Ranger, jogador1);
         jogador1.setPersonagen(2, p);
         personagens[2] = p;
 
-        p = new Personagem(12, 0, TipoGuerreiro.Mage);
-        p.setMatrizDeAtaque(matrix1);
-        p.setMatrizDeMovimentacao(matrix2);
-        p.setIcon(mage);
-        p.setOwner(jogador2);
+        p = new Personagem(12, 0, TipoGuerreiro.Mage, jogador2);
         jogador2.setPersonagen(0, p);
         personagens[3] = p;
 
-        p = new Personagem(12, 1, TipoGuerreiro.Warrior);
-        p.setMatrizDeAtaque(matrix3);
-        p.setMatrizDeMovimentacao(matrix1);
-        p.setIcon(warrior);
-        p.setOwner(jogador2);
+        p = new Personagem(12, 1, TipoGuerreiro.Warrior, jogador2);
         jogador2.setPersonagen(1, p);
         personagens[4] = p;
 
-        p = new Personagem(12, 2, TipoGuerreiro.Ranger);
-        p.setMatrizDeAtaque(matrix2);
-        p.setMatrizDeMovimentacao(matrix3);
-        p.setIcon(ranger);
-        p.setOwner(jogador2);
+        p = new Personagem(12, 2, TipoGuerreiro.Ranger, jogador2);
         jogador2.setPersonagen(2, p);
         personagens[5] = p;
 
@@ -171,7 +134,7 @@ public class Tabuleiro {
         //Verifica se o alvo é aliado
         boolean isAlvoAliado = false;
         Personagem[] personagensAliados = jogando.getPersonagens();
-        for (Personagem p : personagensDoAdversario) {
+        for (Personagem p : personagensAliados) {
             if (p.getPosicao().equals(lance.getPosFinal())) {
                 isAlvoAliado = true;
                 break;
