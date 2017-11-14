@@ -8,8 +8,10 @@ package br.ufsc.inf.ine5608.cliente;
 import br.ufsc.inf.ine5608.rede.AtorNetGames;
 import br.ufsc.inf.ine5608.rede.Jogador;
 import br.ufsc.inf.ine5608.rede.Lance;
+import br.ufsc.inf.ine5608.rede.LanceValido;
 import br.ufsc.inf.ine5608.rede.Personagem;
 import br.ufsc.inf.ine5608.rede.Posicao;
+import br.ufsc.inf.ine5608.rede.TipoDeJogada;
 import br.ufsc.inf.ine5608.rede.TipoGuerreiro;
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -59,8 +61,12 @@ public class AtorJogador extends javax.swing.JFrame {
     }
 
     public void receberLance(Lance lance) {
-        label_vezDeQuem.setText(nomeJogador);
-        tabuleiro.atualizarTabuleiro(lance);
+        LanceValido lv = tabuleiro.validarLanceRemoto(lance) ;
+        if (lv != null){
+            label_vezDeQuem.setText(tabuleiro.getJogadorLocal().getNome());
+            atualizarTabuleiro(lv);
+            tabuleiro.atualizarTabuleiro(lv);
+        }
     }
 
     //Método é chamado quando é recebida a solicitação de inicio
@@ -106,6 +112,7 @@ public class AtorJogador extends javax.swing.JFrame {
                 jb.addActionListener((e) -> {
                     JButton source = (JButton) e.getSource();
                     System.out.println(source.getName());
+                    //Pega as coordenadas do botão
                     int x = Integer.valueOf(source.getName().split(",")[0]);
                     int y = Integer.valueOf(source.getName().split(",")[1]);
                     if (posInicial == null) {
@@ -120,10 +127,12 @@ public class AtorJogador extends javax.swing.JFrame {
                         posFinal = null;
                         posInicial = null;
 
-                        //Se lance foi enviado para o servidor com sucesso
-                        if (enviarLance(lance)) {
+                        LanceValido lanceValido = tabuleiro.validarLanceLocal(lance);
+                        //Se lance for valido e enviado para o servidor com sucesso
+                        if (lanceValido != null && enviarLance(lanceValido)) {
                             label_vezDeQuem.setText(tabuleiro.getJogadorRemoto().getNome());
-                            tabuleiro.atualizarTabuleiro(lance);
+                            atualizarTabuleiro(lanceValido);
+                            tabuleiro.atualizarTabuleiro(lanceValido);
                         }
 
                     }
@@ -135,36 +144,24 @@ public class AtorJogador extends javax.swing.JFrame {
         pack();
 
     }
-
+    
+   
     private void posicionaPersonagens(Personagem[] personagens) {
-
-        Image warrior = new javax.swing.ImageIcon(getClass().getResource("/resources/warrior.png")).getImage().getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING);
-        Image mage = new javax.swing.ImageIcon(getClass().getResource("/resources/mage.png")).getImage().getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING);
-        Image ranger = new javax.swing.ImageIcon(getClass().getResource("/resources/ranger.png")).getImage().getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING);
-
         for (Personagem p : personagens) {
-            Image icon = null;
-            if (p.getTipoGuerreiro() == TipoGuerreiro.Mage) {
-                icon = mage;
+            JButton btn = posicoesBotoes[p.getPosicao().getX()][p.getPosicao().getY()];
+            btn.setIcon(p.getIcon());
+            
+            if (p.getOwner() == tabuleiro.getJogadorLocal()){
+                btn.setBackground(Color.GREEN);
+            }else{
+                btn.setBackground(Color.RED);
             }
-            if (p.getTipoGuerreiro() == TipoGuerreiro.Ranger) {
-                icon = ranger;
-            }
-            if (p.getTipoGuerreiro() == TipoGuerreiro.Warrior) {
-                icon = warrior;
-            }
-
-            posicoesBotoes[p.getPosicao().getX()][p.getPosicao().getY()].setIcon(new ImageIcon(icon));
         }
-
     }
 
-    public boolean enviarLance(Lance lance) {
+    public boolean enviarLance(LanceValido lanceValido) {
         if (atorNetGames.isVezDoJogadorLocal()) {
-            boolean lanceValido = tabuleiro.validarLance(lance);
-            if (lanceValido) {
-                return atorNetGames.enviarLance(lance);
-            }
+            return atorNetGames.enviarLance(lanceValido.getLance());  
         }
         return false;
     }
@@ -206,6 +203,40 @@ public class AtorJogador extends javax.swing.JFrame {
     private void showGame() {
         panel_menu.setVisible(false);
         panel_jogo.setVisible(true);
+    }
+    
+      void notificaErro(String mensagem) {
+        JOptionPane.showMessageDialog(this, mensagem);
+    }
+    
+    private void matarPersonagem(Personagem alvo){
+        alvo.matar();
+        posicoesBotoes[alvo.getPosicao().getX()][alvo.getPosicao().getY()].setIcon(null);
+    }
+    
+    private void moverPersonagem(Personagem atuante, Posicao posicao){
+        JButton btnInicial = posicoesBotoes[atuante.getPosicao().getX()][atuante.getPosicao().getY()];
+        btnInicial.setBackground(Color.WHITE);
+        btnInicial.setIcon(null);
+        
+        atuante.setPosicao(posicao);
+        
+        JButton btnFinal = posicoesBotoes[atuante.getPosicao().getX()][atuante.getPosicao().getY()];
+        btnFinal.setIcon(atuante.getIcon());
+        
+        if (atuante.getOwner() == tabuleiro.getJogadorLocal()){
+            btnFinal.setBackground(Color.GREEN);
+        }else{
+            btnFinal.setBackground(Color.RED);
+        }
+    }
+
+    private void atualizarTabuleiro(LanceValido lance) {
+        if (lance.getTipo() == TipoDeJogada.Ataque){
+            matarPersonagem(lance.getAlvo());
+        }else{
+            moverPersonagem(lance.getAtuante(), lance.getPosicaoFinal());
+        }
     }
 
     /**
@@ -393,8 +424,6 @@ public class AtorJogador extends javax.swing.JFrame {
     private javax.swing.JTextField txt_field_player_name;
     // End of variables declaration//GEN-END:variables
 
-    void notificaErro(String erro_selecione_um_personagem_seu) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+  
 
 }
