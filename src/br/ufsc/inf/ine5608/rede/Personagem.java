@@ -37,6 +37,10 @@ public class Personagem {
     }
 
     public void setMatrizDeAtaque(int[][] matrizDeAtaque) {
+        for (int[] linha : matrizDeAtaque)
+            if (linha.length % 2 == 0)
+                throw new RuntimeException("Aceita apenas Matriz com dimensões impares");   
+        
         this.matrizDeAtaque = matrizDeAtaque;
     }
 
@@ -45,16 +49,45 @@ public class Personagem {
     }
 
     public void setMatrizDeMovimentacao(int[][] matrizDeMovimentacao) {
+        for (int[] linha : matrizDeMovimentacao)
+            if (linha.length % 2 == 0)
+                throw new RuntimeException("Aceita apenas Matriz com dimensões impares");
+        
         this.matrizDeMovimentacao = matrizDeMovimentacao;
     }
 
-    public boolean podeMovimentar(Posicao posFinal) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean podeMovimentar(Posicao posFinal) {          
+        int indiceX = centerMovimento() + posFinal.getX() - posicao.getX();
+        int indiceY = centerMovimento() + posFinal.getY() - posicao.getY();
+        
+        if (indiceX >= 0 && indiceX < matrizDeMovimentacao.length &&
+         indiceY >= 0 && indiceY < matrizDeMovimentacao.length)
+            return matrizDeMovimentacao[indiceX][indiceY] == 1;
+        else 
+            return false;
+    }
+    
+    public boolean podeAtacar(Posicao posFinal) {
+        
+        int indiceX = centerAtaque() + posFinal.getX() - posicao.getX();
+        int indiceY = centerAtaque() + posFinal.getY() - posicao.getY();
+        
+        if (indiceX >= 0 && indiceX < matrizDeAtaque.length &&
+         indiceY >= 0 && indiceY < matrizDeAtaque.length)
+            return matrizDeAtaque[indiceX][indiceY] == 1;
+        else 
+            return false;
+    }
+     
+    private int centerAtaque(){
+        return (matrizDeAtaque.length - 1) / 2;
+    }
+    
+    private int centerMovimento(){
+        return (matrizDeMovimentacao.length - 1) / 2;
     }
 
-    public boolean podeAtacar(Posicao posFinal) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+   
     
     
 }

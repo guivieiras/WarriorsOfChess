@@ -34,6 +34,27 @@ public class Posicao implements Jogada {
     public int getY() {
         return y;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 17 * hash + this.x;
+        hash = 17 * hash + this.y;
+        return hash;
+    }
+    
+    
+    @Override
+    public boolean equals(Object obj){
+        if (obj != null){
+            if (obj.getClass() == Posicao.class)
+            {
+                Posicao pos = (Posicao) obj;
+                return pos.getX() == this.getX() && pos.getY() == this.getY();
+            }
+        }
+        return false;
+    }
     
     
 }

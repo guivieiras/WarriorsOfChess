@@ -30,6 +30,9 @@ public class Tabuleiro {
 
     private AtorJogador tela;
     
+     public static final int LINHAS = 13;
+     public static final int COLUNAS = 10;
+    
     public Tabuleiro() {
 
     }
@@ -118,7 +121,7 @@ public class Tabuleiro {
         
         //Pega personagem atuante
         for (Personagem p : vezDo.getPersonagens()) {
-            if (p.getPosicao() == lance.getPosInicial()) {
+            if (p.getPosicao().equals(lance.getPosInicial())) {
                 atuante = p;
                 break;
             }
@@ -132,28 +135,47 @@ public class Tabuleiro {
         Personagem alvo = null;
         Personagem[] personagensDoAdversario = vezDo == jogador1 ? jogador2.getPersonagens() : jogador1.getPersonagens();
         for (Personagem p : personagensDoAdversario) {
-            if (p.getPosicao() == lance.getPosFinal()) {
+            if (p.getPosicao().equals(lance.getPosFinal())) {
                 alvo = p;
                 break;
             }
         }
         
+        //Verifica se o alvo é aliado
+        boolean isAlvoAliado = false;
+        Personagem[] personagensAliados = vezDo.getPersonagens();
+        for (Personagem p : personagensDoAdversario) {
+            if (p.getPosicao().equals(lance.getPosFinal())) {
+                isAlvoAliado = true;
+                break;
+            }
+        }
+        if (isAlvoAliado){
+            tela.notificaErro("Erro, personagem alvo não pode ser aliado.");
+            return false;
+        }
+        
         //Movimentação
         if (alvo == null){
-            if (!atuante.podeMovimentar(lance.getPosFinal())){
+            if (atuante.podeMovimentar(lance.getPosFinal())){
+                return true;
+            }
+            else{
                 tela.notificaErro("Erro, personagem não pode se movimentar para esta posição.");
                 return false;
             }
         }
         //Ataque
         else {
-            if (!atuante.podeAtacar(lance.getPosFinal())){
+            if (atuante.podeAtacar(lance.getPosFinal())){
+                return true;
+            }
+            else{
                 tela.notificaErro("Erro, personagem não pode atacar personagem nesta posição.");
                 return false;
             }
             
         }
-        return true;
     }
 
     void atualizarTabuleiro(Lance lance) {
@@ -177,7 +199,14 @@ public class Tabuleiro {
     }
 
     private boolean isDentroDoTabuleiro(Posicao posFinal, Posicao posInicial) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (posFinal.getX() >= 0 && posFinal.getX() < LINHAS &&
+           posInicial.getX() >= 0 && posInicial.getX() < LINHAS &&
+           posFinal.getY() >= 0 && posFinal.getY() < COLUNAS &&
+           posInicial.getY() >= 0 && posInicial.getY() < COLUNAS)
+            return true;
+      
+        else
+            return false;
     }
 
 }

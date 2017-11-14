@@ -14,6 +14,7 @@ import br.ufsc.inf.ine5608.rede.TipoGuerreiro;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -78,6 +79,7 @@ public class AtorJogador extends javax.swing.JFrame {
             label_vezDeQuem.setText(nomeAdversario);
             jogador = tabuleiro.getJogadorLocal();
         }
+        this.setTitle("Warriors Of Chess - " + jogador.getNome());
 
         gerarVisualizacaoTabuleiro();
         Personagem[] personagens = tabuleiro.inicializarPersonagens();
@@ -86,17 +88,47 @@ public class AtorJogador extends javax.swing.JFrame {
 
         tabuleiro.iniciaPartida();
     }
-    private JButton[][] posicoesBotoes = new JButton[13][10];
+    private final JButton[][] posicoesBotoes = new JButton[13][10];
+    private Posicao posInicial = null;
+    private Posicao posFinal = null;
 
     private void gerarVisualizacaoTabuleiro() {
         panel_tabuleiro.removeAll();
-        for (int i = 0; i < 13; i++) {
-            for (int j = 0; j < 10; j++) {
+        for (int i = 0; i < Tabuleiro.LINHAS; i++) {
+            for (int j = 0; j < Tabuleiro.COLUNAS; j++) {
 
                 JButton jb = new JButton(); //
 
                 jb.setBackground(Color.WHITE);
+                jb.setName(i + "," + j);
                 posicoesBotoes[i][j] = jb;
+
+                jb.addActionListener((e) -> {
+                    JButton source = (JButton) e.getSource();
+                    System.out.println(source.getName());
+                    int x = Integer.valueOf(source.getName().split(",")[0]);
+                    int y = Integer.valueOf(source.getName().split(",")[1]);
+                    if (posInicial == null) {
+                        posInicial = new Posicao(x, y);
+                    } else {
+                        posFinal = new Posicao(x, y);
+
+                        Lance lance = new Lance();
+                        lance.setPosFinal(posFinal);
+                        lance.setPosInicial(posInicial);
+
+                        posFinal = null;
+                        posInicial = null;
+
+                        //Se lance foi enviado para o servidor com sucesso
+                        if (enviarLance(lance)) {
+                            label_vezDeQuem.setText(tabuleiro.getJogadorRemoto().getNome());
+                            tabuleiro.atualizarTabuleiro(lance);
+                        }
+
+                    }
+                });
+
                 panel_tabuleiro.add(jb);
             }
         }
@@ -112,16 +144,19 @@ public class AtorJogador extends javax.swing.JFrame {
 
             for (Personagem p : personagens) {
                 Image icon = null;
-                if (p.getTipoGuerreiro() == TipoGuerreiro.Mage)
+                if (p.getTipoGuerreiro() == TipoGuerreiro.Mage) {
                     icon = mage;
-                if (p.getTipoGuerreiro() == TipoGuerreiro.Ranger)
+                }
+                if (p.getTipoGuerreiro() == TipoGuerreiro.Ranger) {
                     icon = ranger;
-                if (p.getTipoGuerreiro() == TipoGuerreiro.Warrior)
+                }
+                if (p.getTipoGuerreiro() == TipoGuerreiro.Warrior) {
                     icon = warrior;
-                
-                posicoesBotoes[p.getPosicao().getX()] [p.getPosicao().getY()].setIcon(new ImageIcon(icon));
+                }
+
+                posicoesBotoes[p.getPosicao().getX()][p.getPosicao().getY()].setIcon(new ImageIcon(icon));
             }
-            
+
         } catch (IOException ex) {
             Logger.getLogger(AtorJogador.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -309,15 +344,7 @@ public class AtorJogador extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_conectarActionPerformed
 
     private void btn_enviar_lanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_enviar_lanceActionPerformed
-        Lance lance = new Lance();
-        lance.setPosFinal(new Posicao(0, 3));
-        lance.setPosInicial(new Posicao(0, 0));
 
-        //Se lance foi enviado para o servidor com sucesso
-        if (enviarLance(lance)) {
-            label_vezDeQuem.setText(tabuleiro.getJogadorRemoto().getNome());
-            tabuleiro.atualizarTabuleiro(lance);
-        }
     }//GEN-LAST:event_btn_enviar_lanceActionPerformed
 
     /**
