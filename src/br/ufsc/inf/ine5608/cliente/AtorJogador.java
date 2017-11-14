@@ -137,29 +137,26 @@ public class AtorJogador extends javax.swing.JFrame {
     }
 
     private void posicionaPersonagens(Personagem[] personagens) {
-        try {
-            Image warrior = ImageIO.read(new File("C:\\Users\\Guilherme\\Pictures\\aps\\warrior.png")).getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING);
-            Image mage = ImageIO.read(new File("C:\\Users\\Guilherme\\Pictures\\aps\\mage.png")).getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING);
-            Image ranger = ImageIO.read(new File("C:\\Users\\Guilherme\\Pictures\\aps\\ranger.png")).getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING);
 
-            for (Personagem p : personagens) {
-                Image icon = null;
-                if (p.getTipoGuerreiro() == TipoGuerreiro.Mage) {
-                    icon = mage;
-                }
-                if (p.getTipoGuerreiro() == TipoGuerreiro.Ranger) {
-                    icon = ranger;
-                }
-                if (p.getTipoGuerreiro() == TipoGuerreiro.Warrior) {
-                    icon = warrior;
-                }
+        Image warrior = new javax.swing.ImageIcon(getClass().getResource("/resources/warrior.png")).getImage().getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING);
+        Image mage = new javax.swing.ImageIcon(getClass().getResource("/resources/mage.png")).getImage().getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING);
+        Image ranger = new javax.swing.ImageIcon(getClass().getResource("/resources/ranger.png")).getImage().getScaledInstance(48, 48, Image.SCALE_AREA_AVERAGING);
 
-                posicoesBotoes[p.getPosicao().getX()][p.getPosicao().getY()].setIcon(new ImageIcon(icon));
+        for (Personagem p : personagens) {
+            Image icon = null;
+            if (p.getTipoGuerreiro() == TipoGuerreiro.Mage) {
+                icon = mage;
+            }
+            if (p.getTipoGuerreiro() == TipoGuerreiro.Ranger) {
+                icon = ranger;
+            }
+            if (p.getTipoGuerreiro() == TipoGuerreiro.Warrior) {
+                icon = warrior;
             }
 
-        } catch (IOException ex) {
-            Logger.getLogger(AtorJogador.class.getName()).log(Level.SEVERE, null, ex);
+            posicoesBotoes[p.getPosicao().getX()][p.getPosicao().getY()].setIcon(new ImageIcon(icon));
         }
+
     }
 
     public boolean enviarLance(Lance lance) {
