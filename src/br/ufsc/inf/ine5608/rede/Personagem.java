@@ -47,6 +47,14 @@ public class Personagem {
     public void setMatrizDeMovimentacao(int[][] matrizDeMovimentacao) {
         this.matrizDeMovimentacao = matrizDeMovimentacao;
     }
+
+    public boolean podeMovimentar(Posicao posFinal) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public boolean podeAtacar(Posicao posFinal) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
     
 }

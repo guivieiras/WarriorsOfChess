@@ -369,4 +369,8 @@ public class AtorJogador extends javax.swing.JFrame {
     private javax.swing.JTextField txt_field_player_name;
     // End of variables declaration//GEN-END:variables
 
+    void notificaErro(String erro_selecione_um_personagem_seu) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }
