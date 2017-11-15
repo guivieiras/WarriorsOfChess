@@ -16,6 +16,7 @@ import br.ufsc.inf.ine5608.rede.TipoGuerreiro;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -61,8 +62,8 @@ public class AtorJogador extends javax.swing.JFrame {
     }
 
     public void receberLance(Lance lance) {
-        LanceValido lv = tabuleiro.validarLanceRemoto(lance) ;
-        if (lv != null){
+        LanceValido lv = tabuleiro.validarLanceRemoto(lance);
+        if (lv != null) {
             label_vezDeQuem.setText(tabuleiro.getJogadorLocal().getNome());
             atualizarTabuleiro(lv);
             tabuleiro.atualizarTabuleiro(lv);
@@ -99,6 +100,8 @@ public class AtorJogador extends javax.swing.JFrame {
     private Posicao posFinal = null;
 
     private void gerarVisualizacaoTabuleiro() {
+        panel_tabuleiro.setLayout(new java.awt.GridLayout(Tabuleiro.LINHAS, Tabuleiro.COLUNAS));
+
         panel_tabuleiro.removeAll();
         for (int i = 0; i < Tabuleiro.LINHAS; i++) {
             for (int j = 0; j < Tabuleiro.COLUNAS; j++) {
@@ -108,34 +111,10 @@ public class AtorJogador extends javax.swing.JFrame {
                 jb.setBackground(Color.WHITE);
                 jb.setName(i + "," + j);
                 posicoesBotoes[i][j] = jb;
+                System.out.println(jb.getName());
 
                 jb.addActionListener((e) -> {
-                    JButton source = (JButton) e.getSource();
-                    System.out.println(source.getName());
-                    //Pega as coordenadas do botão
-                    int x = Integer.valueOf(source.getName().split(",")[0]);
-                    int y = Integer.valueOf(source.getName().split(",")[1]);
-                    if (posInicial == null) {
-                        posInicial = new Posicao(x, y);
-                    } else {
-                        posFinal = new Posicao(x, y);
-
-                        Lance lance = new Lance();
-                        lance.setPosFinal(posFinal);
-                        lance.setPosInicial(posInicial);
-
-                        posFinal = null;
-                        posInicial = null;
-
-                        LanceValido lanceValido = tabuleiro.validarLanceLocal(lance);
-                        //Se lance for valido e enviado para o servidor com sucesso
-                        if (lanceValido != null && enviarLance(lanceValido)) {
-                            label_vezDeQuem.setText(tabuleiro.getJogadorRemoto().getNome());
-                            atualizarTabuleiro(lanceValido);
-                            tabuleiro.atualizarTabuleiro(lanceValido);
-                        }
-
-                    }
+                    posicao_click(e);
                 });
 
                 panel_tabuleiro.add(jb);
@@ -144,16 +123,48 @@ public class AtorJogador extends javax.swing.JFrame {
         pack();
 
     }
-    
-   
+
+    private void posicao_click(ActionEvent e) {
+        if (!atorNetGames.isVezDoJogadorLocal()){
+            notificaErro("Espere sua vez de jogar!");
+            return;
+        }
+        
+        JButton source = (JButton) e.getSource();
+        System.out.println(source.getName());
+        //Pega as coordenadas do botão
+        int x = Integer.valueOf(source.getName().split(",")[0]);
+        int y = Integer.valueOf(source.getName().split(",")[1]);
+        if (posInicial == null) {
+            posInicial = new Posicao(x, y);
+        } else {
+            posFinal = new Posicao(x, y);
+
+            Lance lance = new Lance();
+            lance.setPosFinal(posFinal);
+            lance.setPosInicial(posInicial);
+
+            posFinal = null;
+            posInicial = null;
+
+            LanceValido lanceValido = tabuleiro.validarLanceLocal(lance);
+            //Se lance for valido e enviado para o servidor com sucesso
+            if (lanceValido != null && enviarLance(lanceValido)) {
+                label_vezDeQuem.setText(tabuleiro.getJogadorRemoto().getNome());
+                atualizarTabuleiro(lanceValido);
+                tabuleiro.atualizarTabuleiro(lanceValido);
+            }
+        }
+    }
+
     private void posicionaPersonagens(Personagem[] personagens) {
         for (Personagem p : personagens) {
             JButton btn = posicoesBotoes[p.getPosicao().getX()][p.getPosicao().getY()];
             btn.setIcon(p.getIcon());
-            
-            if (p.getOwner() == tabuleiro.getJogadorLocal()){
+
+            if (p.getOwner() == tabuleiro.getJogadorLocal()) {
                 btn.setBackground(Color.GREEN);
-            }else{
+            } else {
                 btn.setBackground(Color.RED);
             }
         }
@@ -161,7 +172,7 @@ public class AtorJogador extends javax.swing.JFrame {
 
     public boolean enviarLance(LanceValido lanceValido) {
         if (atorNetGames.isVezDoJogadorLocal()) {
-            return atorNetGames.enviarLance(lanceValido.getLance());  
+            return atorNetGames.enviarLance(lanceValido.getLance());
         }
         return false;
     }
@@ -193,49 +204,66 @@ public class AtorJogador extends javax.swing.JFrame {
     private void enableConnect() {
         btn_conectar.setText("Conectar");
         btn_conectar.setEnabled(true);
+        btn_iniciarPartida.setEnabled(false);
     }
-
+    private void disableConnect() {
+        btn_conectar.setText("Procurando Adversário");
+        btn_conectar.setEnabled(false);    
+        btn_iniciarPartida.setEnabled(true);    
+    }
+    
     private void showMenu() {
         panel_menu.setVisible(true);
         panel_jogo.setVisible(false);
+        
+        if (atorNetGames.isConectado()){
+            disableConnect();
+        }else{
+            enableConnect();
+        }
     }
 
     private void showGame() {
         panel_menu.setVisible(false);
         panel_jogo.setVisible(true);
     }
-    
-      void notificaErro(String mensagem) {
+
+    void notificaErro(String mensagem) {
         JOptionPane.showMessageDialog(this, mensagem);
     }
-    
-    private void matarPersonagem(Personagem alvo){
+
+    private void matarPersonagem(Personagem alvo) {
         posicoesBotoes[alvo.getPosicao().getX()][alvo.getPosicao().getY()].setIcon(null);
         posicoesBotoes[alvo.getPosicao().getX()][alvo.getPosicao().getY()].setBackground(Color.WHITE);
-        alvo.matar(); 
+        alvo.matar();
     }
-    
-    private void moverPersonagem(Personagem atuante, Posicao posicao){
+
+    private void moverPersonagem(Personagem atuante, Posicao posicao) {
         JButton btnInicial = posicoesBotoes[atuante.getPosicao().getX()][atuante.getPosicao().getY()];
         btnInicial.setBackground(Color.WHITE);
         btnInicial.setIcon(null);
-        
+
         atuante.setPosicao(posicao);
-        
+
         JButton btnFinal = posicoesBotoes[posicao.getX()][posicao.getY()];
         btnFinal.setIcon(atuante.getIcon());
-        
-        if (atuante.getOwner() == tabuleiro.getJogadorLocal()){
+
+        if (atuante.getOwner() == tabuleiro.getJogadorLocal()) {
             btnFinal.setBackground(Color.GREEN);
-        }else{
+        } else {
             btnFinal.setBackground(Color.RED);
         }
     }
 
     private void atualizarTabuleiro(LanceValido lance) {
-        if (lance.getTipo() == TipoDeJogada.Ataque){
+        if (lance.getTipo() == TipoDeJogada.Ataque) {
             matarPersonagem(lance.getAlvo());
-        }else{
+            Jogador vencedor = tabuleiro.testaFimDeJogo();
+            if (vencedor != null){
+                //JOptionPane.showMessageDialog(this, vencedor.getNome() + " venceu!");
+                atorNetGames.finalizarPartida();
+            }
+        } else {
             moverPersonagem(lance.getAtuante(), lance.getPosicaoFinal());
         }
     }
@@ -249,20 +277,77 @@ public class AtorJogador extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        panel_jogo = new javax.swing.JPanel();
-        btn_enviar_lance = new javax.swing.JButton();
-        label_vezDeQuem = new javax.swing.JLabel();
-        panel_tabuleiro = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
         panel_menu = new javax.swing.JPanel();
         btn_conectar = new javax.swing.JButton();
         txt_field_player_name = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         btn_regras = new javax.swing.JButton();
+        btn_iniciarPartida = new javax.swing.JButton();
+        panel_jogo = new javax.swing.JPanel();
+        btn_enviar_lance = new javax.swing.JButton();
+        label_vezDeQuem = new javax.swing.JLabel();
+        panel_tabuleiro = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(500, 400));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panel_menu.setPreferredSize(new java.awt.Dimension(900, 900));
+
+        btn_conectar.setText("Conectar");
+        btn_conectar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_conectarActionPerformed(evt);
+            }
+        });
+
+        txt_field_player_name.setText("Player1");
+
+        jLabel1.setText("Nome");
+
+        btn_regras.setText("Regras");
+
+        btn_iniciarPartida.setText("Iniciar Partida");
+        btn_iniciarPartida.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_iniciarPartidaActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panel_menuLayout = new javax.swing.GroupLayout(panel_menu);
+        panel_menu.setLayout(panel_menuLayout);
+        panel_menuLayout.setHorizontalGroup(
+            panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panel_menuLayout.createSequentialGroup()
+                .addGap(217, 217, 217)
+                .addGroup(panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btn_iniciarPartida)
+                    .addComponent(btn_regras)
+                    .addComponent(btn_conectar)
+                    .addGroup(panel_menuLayout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(18, 18, 18)
+                        .addComponent(txt_field_player_name, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(362, Short.MAX_VALUE))
+        );
+        panel_menuLayout.setVerticalGroup(
+            panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_menuLayout.createSequentialGroup()
+                .addContainerGap(212, Short.MAX_VALUE)
+                .addGroup(panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(txt_field_player_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
+                .addComponent(btn_conectar)
+                .addGap(47, 47, 47)
+                .addComponent(btn_iniciarPartida)
+                .addGap(56, 56, 56)
+                .addComponent(btn_regras)
+                .addGap(260, 260, 260))
+        );
+
+        getContentPane().add(panel_menu, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 720, 690));
 
         panel_jogo.setPreferredSize(new java.awt.Dimension(900, 900));
 
@@ -284,7 +369,7 @@ public class AtorJogador extends javax.swing.JFrame {
         panel_jogoLayout.setHorizontalGroup(
             panel_jogoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_jogoLayout.createSequentialGroup()
-                .addGap(0, 419, Short.MAX_VALUE)
+                .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
                 .addComponent(label_vezDeQuem)
@@ -293,8 +378,8 @@ public class AtorJogador extends javax.swing.JFrame {
                 .addGap(216, 216, 216))
             .addGroup(panel_jogoLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(panel_tabuleiro, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(panel_tabuleiro, javax.swing.GroupLayout.PREFERRED_SIZE, 685, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(25, Short.MAX_VALUE))
         );
         panel_jogoLayout.setVerticalGroup(
             panel_jogoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -305,68 +390,20 @@ public class AtorJogador extends javax.swing.JFrame {
                     .addComponent(jLabel2)
                     .addComponent(btn_enviar_lance))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panel_tabuleiro, javax.swing.GroupLayout.DEFAULT_SIZE, 849, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(panel_tabuleiro, javax.swing.GroupLayout.PREFERRED_SIZE, 636, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
-        getContentPane().add(panel_jogo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
-
-        panel_menu.setPreferredSize(new java.awt.Dimension(900, 900));
-
-        btn_conectar.setText("Conectar");
-        btn_conectar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_conectarActionPerformed(evt);
-            }
-        });
-
-        txt_field_player_name.setText("Player1");
-
-        jLabel1.setText("Nome");
-
-        btn_regras.setText("Regras");
-
-        javax.swing.GroupLayout panel_menuLayout = new javax.swing.GroupLayout(panel_menu);
-        panel_menu.setLayout(panel_menuLayout);
-        panel_menuLayout.setHorizontalGroup(
-            panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panel_menuLayout.createSequentialGroup()
-                .addGap(157, 157, 157)
-                .addGroup(panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btn_regras)
-                    .addComponent(btn_conectar)
-                    .addGroup(panel_menuLayout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(18, 18, 18)
-                        .addComponent(txt_field_player_name, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(602, Short.MAX_VALUE))
-        );
-        panel_menuLayout.setVerticalGroup(
-            panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panel_menuLayout.createSequentialGroup()
-                .addGap(115, 115, 115)
-                .addGroup(panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txt_field_player_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
-                .addGap(29, 29, 29)
-                .addComponent(btn_conectar)
-                .addGap(45, 45, 45)
-                .addComponent(btn_regras)
-                .addContainerGap(645, Short.MAX_VALUE))
-        );
-
-        getContentPane().add(panel_menu, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+        getContentPane().add(panel_jogo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 720, 690));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_conectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_conectarActionPerformed
         String nomeJogador = txt_field_player_name.getText();
-        if (!atorNetGames.isConectado() && atorNetGames.conectar("127.0.0.1", nomeJogador)) {
-            atorNetGames.iniciarPartidaRede();
+        if (!atorNetGames.isConectado() && atorNetGames.conectar("127.0.0.1", nomeJogador)) {  
             this.nomeJogador = nomeJogador;
-            btn_conectar.setText("Procurando Adversário");
-            btn_conectar.setEnabled(false);
+            disableConnect();
         } else {
             JOptionPane.showMessageDialog(this, "Erro ao conectar-se ao servidor");
         }
@@ -375,6 +412,10 @@ public class AtorJogador extends javax.swing.JFrame {
     private void btn_enviar_lanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_enviar_lanceActionPerformed
 
     }//GEN-LAST:event_btn_enviar_lanceActionPerformed
+
+    private void btn_iniciarPartidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_iniciarPartidaActionPerformed
+        atorNetGames.iniciarPartidaRede();
+    }//GEN-LAST:event_btn_iniciarPartidaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -415,6 +456,7 @@ public class AtorJogador extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_conectar;
     private javax.swing.JButton btn_enviar_lance;
+    private javax.swing.JButton btn_iniciarPartida;
     private javax.swing.JButton btn_regras;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -425,6 +467,6 @@ public class AtorJogador extends javax.swing.JFrame {
     private javax.swing.JTextField txt_field_player_name;
     // End of variables declaration//GEN-END:variables
 
-  
+    
 
 }

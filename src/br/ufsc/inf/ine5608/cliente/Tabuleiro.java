@@ -34,8 +34,8 @@ public class Tabuleiro {
 
     private AtorJogador tela;
     
-     public static final int LINHAS = 13;
-     public static final int COLUNAS = 10;
+     public static final int LINHAS = 11;
+     public static final int COLUNAS = 9;
     
     public Tabuleiro(AtorJogador tela) {
         this.tela = tela;
@@ -61,27 +61,27 @@ public class Tabuleiro {
         Personagem[] personagens = new Personagem[6];
        
 
-        Personagem p = new Personagem(0, 0, TipoGuerreiro.Mage, jogador1);
+        Personagem p = new Personagem(0, 2, TipoGuerreiro.Mage, jogador1);
         jogador1.setPersonagen(0, p);
         personagens[0] = p;
 
-        p = new Personagem(0, 1, TipoGuerreiro.Warrior, jogador1);
+        p = new Personagem(0, 4, TipoGuerreiro.Warrior, jogador1);
         jogador1.setPersonagen(1, p);
         personagens[1] = p;
 
-        p = new Personagem(0, 2, TipoGuerreiro.Ranger, jogador1);
+        p = new Personagem(0, 6, TipoGuerreiro.Ranger, jogador1);
         jogador1.setPersonagen(2, p);
         personagens[2] = p;
 
-        p = new Personagem(12, 0, TipoGuerreiro.Mage, jogador2);
+        p = new Personagem(10, 2, TipoGuerreiro.Mage, jogador2);
         jogador2.setPersonagen(0, p);
         personagens[3] = p;
 
-        p = new Personagem(12, 1, TipoGuerreiro.Warrior, jogador2);
+        p = new Personagem(10, 4, TipoGuerreiro.Warrior, jogador2);
         jogador2.setPersonagen(1, p);
         personagens[4] = p;
 
-        p = new Personagem(12, 2, TipoGuerreiro.Ranger, jogador2);
+        p = new Personagem(10, 6, TipoGuerreiro.Ranger, jogador2);
         jogador2.setPersonagen(2, p);
         personagens[5] = p;
 
@@ -207,6 +207,28 @@ public class Tabuleiro {
       
         else
             return false;
+    }
+    //Retonar o jogador vencedor, caso nenhum ganhe, retorna nulo
+    Jogador testaFimDeJogo() {
+        int mortos = 0;
+        for (Personagem p : jogador1.getPersonagens()){
+            if (!p.isVivo()){
+                mortos++;
+            }
+        }
+        if (mortos == 3)
+            return jogador1;
+        
+        mortos = 0;
+        for (Personagem p : jogador2.getPersonagens()){
+            if (!p.isVivo()){
+                mortos++;
+            }
+        }
+        if (mortos == 3)
+            return jogador2;
+        
+        return null;
     }
 
 

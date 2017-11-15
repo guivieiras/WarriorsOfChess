@@ -71,6 +71,18 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
         return false;
     }
     
+    public void finalizarPartida(){
+        try {
+            proxy.finalizarPartida();
+            isPartidaEmAndamento = false;            
+        } catch (NaoConectadoException ex) {
+            Logger.getLogger(AtorNetGames.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NaoJogandoException ex) {
+            Logger.getLogger(AtorNetGames.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
     public void desconectar(){
         try {
             proxy.desconectar();

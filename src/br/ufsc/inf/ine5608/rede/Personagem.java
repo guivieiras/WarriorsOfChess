@@ -153,6 +153,10 @@ static        ImageIcon ranger = new ImageIcon( new javax.swing.ImageIcon(Person
     public ImageIcon getIcon() {
         return icon;
     }
+
+    public boolean isVivo() {
+        return isVivo;
+    }
     
 
    
