@@ -6,13 +6,8 @@
 package br.ufsc.inf.ine5608.cliente;
 
 import br.ufsc.inf.ine5608.rede.AtorNetGames;
-import br.ufsc.inf.ine5608.rede.Jogador;
 import br.ufsc.inf.ine5608.rede.Lance;
-import br.ufsc.inf.ine5608.rede.LanceValido;
-import br.ufsc.inf.ine5608.rede.Personagem;
 import br.ufsc.inf.ine5608.rede.Posicao;
-import br.ufsc.inf.ine5608.rede.TipoDeJogada;
-import br.ufsc.inf.ine5608.rede.TipoGuerreiro;
 import java.awt.Image;
 import javax.swing.ImageIcon;
 
@@ -92,6 +87,25 @@ public class Tabuleiro {
         partidaEmAndamento = true;
     }
     
+    
+    Personagem getPersonagemLocal(Posicao posicao) {
+        return getPersonagem(posicao, local);
+    }
+    
+    Personagem getPersonagemRemoto(Posicao posicao) {
+        return getPersonagem(posicao, remoto);
+    }
+    
+    Personagem getPersonagem(Posicao posicao, Jogador jogador){
+        for (Personagem p : jogador.getPersonagens()) {
+            if (p.getPosicao().equals(posicao)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    
     LanceValido validarLanceLocal(Lance lance){
         return validarLance(lance, local, remoto);
     }
@@ -101,13 +115,6 @@ public class Tabuleiro {
 
     //Retorna nulo caso invalido
     LanceValido validarLance(Lance lance, Jogador jogando, Jogador adversario) {
-        //Se está fora do tabuleiro
-        if (!isDentroDoTabuleiro(lance.getPosFinal(), lance.getPosInicial()))
-        {
-            tela.notificaErro("Erro, selecione um personagem seu.");
-            return null;
-        }
-        
         Personagem atuante = null;  
         //Pega personagem atuante
         for (Personagem p : jogando.getPersonagens()) {
@@ -178,10 +185,6 @@ public class Tabuleiro {
         }
     }
 
-    void atualizarTabuleiro(LanceValido lance) {
-        
-    }
-
     public boolean IsPartidaEmAndamento() {
         return partidaEmAndamento;
     }
@@ -198,16 +201,17 @@ public class Tabuleiro {
         partidaEmAndamento = false;
     }
 
-    private boolean isDentroDoTabuleiro(Posicao posFinal, Posicao posInicial) {
-        if (posFinal.getX() >= 0 && posFinal.getX() < LINHAS &&
-           posInicial.getX() >= 0 && posInicial.getX() < LINHAS &&
-           posFinal.getY() >= 0 && posFinal.getY() < COLUNAS &&
-           posInicial.getY() >= 0 && posInicial.getY() < COLUNAS)
-            return true;
-      
-        else
-            return false;
-    }
+//    private boolean isDentroDoTabuleiro(Posicao posFinal, Posicao posInicial) {
+//        if (posFinal.getX() >= 0 && posFinal.getX() < LINHAS &&
+//           posInicial.getX() >= 0 && posInicial.getX() < LINHAS &&
+//           posFinal.getY() >= 0 && posFinal.getY() < COLUNAS &&
+//           posInicial.getY() >= 0 && posInicial.getY() < COLUNAS)
+//            return true;
+//      
+//        else
+//            return false;
+//    }
+    
     //Retonar o jogador vencedor, caso nenhum ganhe, retorna nulo
     Jogador testaFimDeJogo() {
         int mortos = 0;
@@ -217,7 +221,7 @@ public class Tabuleiro {
             }
         }
         if (mortos == 3)
-            return jogador1;
+            return jogador2;
         
         mortos = 0;
         for (Personagem p : jogador2.getPersonagens()){
@@ -226,7 +230,7 @@ public class Tabuleiro {
             }
         }
         if (mortos == 3)
-            return jogador2;
+            return jogador1;
         
         return null;
     }

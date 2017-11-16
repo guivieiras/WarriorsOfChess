@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.ufsc.inf.ine5608.rede;
+package br.ufsc.inf.ine5608.cliente;
 
 /**
  *
  * @author Guilherme
  */
-public enum TipoDeJogada {
-    Movimentacao, Ataque, Desistencia, PassarVez
-}
+ public enum TipoGuerreiro{
+        Warrior, Ranger, Mage
+    }

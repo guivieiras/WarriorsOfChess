@@ -5,6 +5,7 @@
  */
 package br.ufsc.inf.ine5608.rede;
 
+import br.ufsc.inf.ine5608.cliente.TipoDeJogada;
 import br.ufsc.inf.leobr.cliente.Jogada;
 
 /**

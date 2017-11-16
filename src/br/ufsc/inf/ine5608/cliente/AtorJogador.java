@@ -6,13 +6,8 @@
 package br.ufsc.inf.ine5608.cliente;
 
 import br.ufsc.inf.ine5608.rede.AtorNetGames;
-import br.ufsc.inf.ine5608.rede.Jogador;
 import br.ufsc.inf.ine5608.rede.Lance;
-import br.ufsc.inf.ine5608.rede.LanceValido;
-import br.ufsc.inf.ine5608.rede.Personagem;
 import br.ufsc.inf.ine5608.rede.Posicao;
-import br.ufsc.inf.ine5608.rede.TipoDeJogada;
-import br.ufsc.inf.ine5608.rede.TipoGuerreiro;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -39,6 +34,15 @@ public class AtorJogador extends javax.swing.JFrame {
     private String nomeJogador;
     private Jogador jogador;
 
+    private final JButton[][] posicoesBotoes = new JButton[13][10];
+    private Posicao posInicial = null;
+    private Posicao posFinal = null;
+    
+    private Personagem atuante = null;
+
+    private Color enemyColor = new Color(236, 121, 121);
+    private Color allyColor = new Color(105, 241, 105);
+
     /**
      * Creates new form InterfaceJogo
      */
@@ -62,11 +66,10 @@ public class AtorJogador extends javax.swing.JFrame {
     }
 
     public void receberLance(Lance lance) {
-        LanceValido lv = tabuleiro.validarLanceRemoto(lance);
-        if (lv != null) {
+        LanceValido lanceValido = tabuleiro.validarLanceRemoto(lance);
+        if (lanceValido != null) {
             label_vezDeQuem.setText(tabuleiro.getJogadorLocal().getNome());
-            atualizarTabuleiro(lv);
-            tabuleiro.atualizarTabuleiro(lv);
+            atualizarTabuleiro(lanceValido);
         }
     }
 
@@ -95,9 +98,6 @@ public class AtorJogador extends javax.swing.JFrame {
 
         tabuleiro.iniciaPartida();
     }
-    private final JButton[][] posicoesBotoes = new JButton[13][10];
-    private Posicao posInicial = null;
-    private Posicao posFinal = null;
 
     private void gerarVisualizacaoTabuleiro() {
         panel_tabuleiro.setLayout(new java.awt.GridLayout(Tabuleiro.LINHAS, Tabuleiro.COLUNAS));
@@ -125,35 +125,54 @@ public class AtorJogador extends javax.swing.JFrame {
     }
 
     private void posicao_click(ActionEvent e) {
-        if (!atorNetGames.isVezDoJogadorLocal()){
-            notificaErro("Espere sua vez de jogar!");
-            return;
-        }
+        if (atorNetGames.isVezDoJogadorLocal()) {
+
+            JButton source = (JButton) e.getSource();
+            System.out.println(source.getName());
+            //Pega as coordenadas do botão
+            int x = Integer.valueOf(source.getName().split(",")[0]);
+            int y = Integer.valueOf(source.getName().split(",")[1]);
+            Personagem selected = tabuleiro.getPersonagemLocal(new Posicao(x, y));
+            
+            if (atuante == null ||(atuante != null && selected != null)) {
+                
+                if (atuante != null){
+                    limpaPossibilidades(atuante);
+                    recolorirBackgrounds();
+                }
+                
+                atuante = selected;
+             
+                mostraPossibilidades(atuante);
+                
+                posInicial = new Posicao(x, y);
+                
+            } if (atuante != null && selected == null) {
+                
+                posFinal = new Posicao(x, y);
+
+                Lance lance = new Lance();
+                lance.setPosFinal(posFinal);
+                lance.setPosInicial(posInicial);
+
+                LanceValido lanceValido = tabuleiro.validarLanceLocal(lance);
+                //Se lance for valido e enviado para o servidor com sucesso
+                if (lanceValido != null && enviarLance(lanceValido)) {
+                    label_vezDeQuem.setText(tabuleiro.getJogadorRemoto().getNome());
+ 
+                    limpaPossibilidades(atuante);
+                    recolorirBackgrounds();
         
-        JButton source = (JButton) e.getSource();
-        System.out.println(source.getName());
-        //Pega as coordenadas do botão
-        int x = Integer.valueOf(source.getName().split(",")[0]);
-        int y = Integer.valueOf(source.getName().split(",")[1]);
-        if (posInicial == null) {
-            posInicial = new Posicao(x, y);
-        } else {
-            posFinal = new Posicao(x, y);
-
-            Lance lance = new Lance();
-            lance.setPosFinal(posFinal);
-            lance.setPosInicial(posInicial);
-
-            posFinal = null;
-            posInicial = null;
-
-            LanceValido lanceValido = tabuleiro.validarLanceLocal(lance);
-            //Se lance for valido e enviado para o servidor com sucesso
-            if (lanceValido != null && enviarLance(lanceValido)) {
-                label_vezDeQuem.setText(tabuleiro.getJogadorRemoto().getNome());
-                atualizarTabuleiro(lanceValido);
-                tabuleiro.atualizarTabuleiro(lanceValido);
+                    atualizarTabuleiro(lanceValido);
+                    
+                    posFinal = null;
+                    posInicial = null;
+                    atuante = null;
+                }
             }
+        } else {
+            notificaMensagem("Espere sua vez de jogar!");
+
         }
     }
 
@@ -163,9 +182,9 @@ public class AtorJogador extends javax.swing.JFrame {
             btn.setIcon(p.getIcon());
 
             if (p.getOwner() == tabuleiro.getJogadorLocal()) {
-                btn.setBackground(Color.GREEN);
+                btn.setBackground(allyColor);
             } else {
-                btn.setBackground(Color.RED);
+                btn.setBackground(enemyColor);
             }
         }
     }
@@ -178,6 +197,7 @@ public class AtorJogador extends javax.swing.JFrame {
     }
 
     public void conexaoPerdida() {
+        notificaMensagem("Conexão com o servidor perdida!");
         if (tabuleiro.IsPartidaEmAndamento()) {
             tabuleiro.encerraPartida();
         }
@@ -190,11 +210,11 @@ public class AtorJogador extends javax.swing.JFrame {
 
         if (tabuleiro.IsPartidaEmAndamento()) {
             tabuleiro.encerraPartida();
-            showMenu();
         } else {
             JOptionPane.showMessageDialog(this, "Erro, partida foi encerrada mas não estava em andamento");
         }
 
+        showMenu();
         if (!atorNetGames.isConectado()) {
             enableConnect();
         }
@@ -206,19 +226,20 @@ public class AtorJogador extends javax.swing.JFrame {
         btn_conectar.setEnabled(true);
         btn_iniciarPartida.setEnabled(false);
     }
+
     private void disableConnect() {
         btn_conectar.setText("Procurando Adversário");
-        btn_conectar.setEnabled(false);    
-        btn_iniciarPartida.setEnabled(true);    
+        btn_conectar.setEnabled(false);
+        btn_iniciarPartida.setEnabled(true);
     }
-    
+
     private void showMenu() {
         panel_menu.setVisible(true);
         panel_jogo.setVisible(false);
-        
-        if (atorNetGames.isConectado()){
+
+        if (atorNetGames.isConectado()) {
             disableConnect();
-        }else{
+        } else {
             enableConnect();
         }
     }
@@ -228,8 +249,13 @@ public class AtorJogador extends javax.swing.JFrame {
         panel_jogo.setVisible(true);
     }
 
-    void notificaErro(String mensagem) {
+    public void notificaErro(String mensagem) {
+        JOptionPane.showMessageDialog(this, mensagem, null, JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void notificaMensagem(String mensagem) {
         JOptionPane.showMessageDialog(this, mensagem);
+
     }
 
     private void matarPersonagem(Personagem alvo) {
@@ -249,9 +275,9 @@ public class AtorJogador extends javax.swing.JFrame {
         btnFinal.setIcon(atuante.getIcon());
 
         if (atuante.getOwner() == tabuleiro.getJogadorLocal()) {
-            btnFinal.setBackground(Color.GREEN);
+            btnFinal.setBackground(allyColor);
         } else {
-            btnFinal.setBackground(Color.RED);
+            btnFinal.setBackground(enemyColor);
         }
     }
 
@@ -259,13 +285,48 @@ public class AtorJogador extends javax.swing.JFrame {
         if (lance.getTipo() == TipoDeJogada.Ataque) {
             matarPersonagem(lance.getAlvo());
             Jogador vencedor = tabuleiro.testaFimDeJogo();
-            if (vencedor != null){
-                //JOptionPane.showMessageDialog(this, vencedor.getNome() + " venceu!");
-                atorNetGames.finalizarPartida();
+            if (vencedor == tabuleiro.getJogadorLocal()) {
+                notificaMensagem("Você venceu! Ao clicar 'OK' a partida será reniciada");
+                atorNetGames.reiniciarPartida();
+            } else if (vencedor == tabuleiro.getJogadorRemoto()) {
+                notificaMensagem("Você perdeu!");
             }
+
         } else {
             moverPersonagem(lance.getAtuante(), lance.getPosicaoFinal());
         }
+    }
+    
+    private void recolorirBackgrounds() {
+        for (Personagem p : tabuleiro.getJogadorRemoto().getPersonagens()) {
+            if (p.isVivo())
+            posicoesBotoes[p.getPosicao().getX()][p.getPosicao().getY()].setBackground(enemyColor);      
+        }
+        for (Personagem p : tabuleiro.getJogadorLocal().getPersonagens()) {
+            if (p.isVivo())
+            posicoesBotoes[p.getPosicao().getX()][p.getPosicao().getY()].setBackground(allyColor);
+        }       
+    }
+    
+    private void mostraPossibilidades(Personagem atuante) {
+        for (int i = 0; i < Tabuleiro.LINHAS; i++){
+            for (int j = 0; j < Tabuleiro.COLUNAS; j++){
+                if (atuante.podeAtacar(new Posicao(i, j)))
+                    posicoesBotoes[i][j].setBackground(Color.ORANGE);
+                else if (atuante.podeMovimentar(new Posicao(i, j)))
+                    posicoesBotoes[i][j].setBackground(Color.GREEN);
+                
+            }
+        }
+    }
+    
+    private void limpaPossibilidades(Personagem atuante) {
+        for (int i = 0; i < Tabuleiro.LINHAS; i++){
+            for (int j = 0; j < Tabuleiro.COLUNAS; j++){
+                if (atuante.podeAtacar(new Posicao(i, j)) || atuante.podeMovimentar(new Posicao(i, j)))
+                    posicoesBotoes[i][j].setBackground(Color.WHITE);          
+            }
+        }    
     }
 
     /**
@@ -277,21 +338,68 @@ public class AtorJogador extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        panel_jogo = new javax.swing.JPanel();
+        btn_desconectar = new javax.swing.JButton();
+        label_vezDeQuem = new javax.swing.JLabel();
+        panel_tabuleiro = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
         panel_menu = new javax.swing.JPanel();
         btn_conectar = new javax.swing.JButton();
         txt_field_player_name = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         btn_regras = new javax.swing.JButton();
         btn_iniciarPartida = new javax.swing.JButton();
-        panel_jogo = new javax.swing.JPanel();
-        btn_enviar_lance = new javax.swing.JButton();
-        label_vezDeQuem = new javax.swing.JLabel();
-        panel_tabuleiro = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(500, 400));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panel_jogo.setPreferredSize(new java.awt.Dimension(900, 900));
+
+        btn_desconectar.setText("Desconectar");
+        btn_desconectar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_desconectarActionPerformed(evt);
+            }
+        });
+
+        label_vezDeQuem.setText("VEZ DE QUEM");
+
+        panel_tabuleiro.setLayout(new java.awt.GridLayout(13, 10));
+
+        jLabel2.setText("Vez do:");
+
+        javax.swing.GroupLayout panel_jogoLayout = new javax.swing.GroupLayout(panel_jogo);
+        panel_jogo.setLayout(panel_jogoLayout);
+        panel_jogoLayout.setHorizontalGroup(
+            panel_jogoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_jogoLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel2)
+                .addGap(18, 18, 18)
+                .addComponent(label_vezDeQuem)
+                .addGap(82, 82, 82)
+                .addComponent(btn_desconectar)
+                .addGap(216, 216, 216))
+            .addGroup(panel_jogoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panel_tabuleiro, javax.swing.GroupLayout.PREFERRED_SIZE, 685, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(25, Short.MAX_VALUE))
+        );
+        panel_jogoLayout.setVerticalGroup(
+            panel_jogoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panel_jogoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panel_jogoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(label_vezDeQuem)
+                    .addComponent(jLabel2)
+                    .addComponent(btn_desconectar))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panel_tabuleiro, javax.swing.GroupLayout.PREFERRED_SIZE, 636, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(14, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(panel_jogo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 720, 690));
 
         panel_menu.setPreferredSize(new java.awt.Dimension(900, 900));
 
@@ -349,59 +457,12 @@ public class AtorJogador extends javax.swing.JFrame {
 
         getContentPane().add(panel_menu, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 720, 690));
 
-        panel_jogo.setPreferredSize(new java.awt.Dimension(900, 900));
-
-        btn_enviar_lance.setText("Enviar");
-        btn_enviar_lance.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_enviar_lanceActionPerformed(evt);
-            }
-        });
-
-        label_vezDeQuem.setText("VEZ DE QUEM");
-
-        panel_tabuleiro.setLayout(new java.awt.GridLayout(13, 10));
-
-        jLabel2.setText("Vez do:");
-
-        javax.swing.GroupLayout panel_jogoLayout = new javax.swing.GroupLayout(panel_jogo);
-        panel_jogo.setLayout(panel_jogoLayout);
-        panel_jogoLayout.setHorizontalGroup(
-            panel_jogoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_jogoLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jLabel2)
-                .addGap(18, 18, 18)
-                .addComponent(label_vezDeQuem)
-                .addGap(82, 82, 82)
-                .addComponent(btn_enviar_lance)
-                .addGap(216, 216, 216))
-            .addGroup(panel_jogoLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panel_tabuleiro, javax.swing.GroupLayout.PREFERRED_SIZE, 685, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(25, Short.MAX_VALUE))
-        );
-        panel_jogoLayout.setVerticalGroup(
-            panel_jogoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panel_jogoLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panel_jogoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(label_vezDeQuem)
-                    .addComponent(jLabel2)
-                    .addComponent(btn_enviar_lance))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panel_tabuleiro, javax.swing.GroupLayout.PREFERRED_SIZE, 636, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(14, Short.MAX_VALUE))
-        );
-
-        getContentPane().add(panel_jogo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 720, 690));
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_conectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_conectarActionPerformed
         String nomeJogador = txt_field_player_name.getText();
-        if (!atorNetGames.isConectado() && atorNetGames.conectar("127.0.0.1", nomeJogador)) {  
+        if (!atorNetGames.isConectado() && atorNetGames.conectar("127.0.0.1", nomeJogador)) {
             this.nomeJogador = nomeJogador;
             disableConnect();
         } else {
@@ -409,9 +470,9 @@ public class AtorJogador extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btn_conectarActionPerformed
 
-    private void btn_enviar_lanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_enviar_lanceActionPerformed
-
-    }//GEN-LAST:event_btn_enviar_lanceActionPerformed
+    private void btn_desconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_desconectarActionPerformed
+        atorNetGames.desconectar();
+    }//GEN-LAST:event_btn_desconectarActionPerformed
 
     private void btn_iniciarPartidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_iniciarPartidaActionPerformed
         atorNetGames.iniciarPartidaRede();
@@ -455,7 +516,7 @@ public class AtorJogador extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_conectar;
-    private javax.swing.JButton btn_enviar_lance;
+    private javax.swing.JButton btn_desconectar;
     private javax.swing.JButton btn_iniciarPartida;
     private javax.swing.JButton btn_regras;
     private javax.swing.JLabel jLabel1;
@@ -467,6 +528,10 @@ public class AtorJogador extends javax.swing.JFrame {
     private javax.swing.JTextField txt_field_player_name;
     // End of variables declaration//GEN-END:variables
 
-    
+ 
+
+
+
+
 
 }

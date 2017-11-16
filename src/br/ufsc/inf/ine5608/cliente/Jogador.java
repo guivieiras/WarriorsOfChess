@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.ufsc.inf.ine5608.rede;
+package br.ufsc.inf.ine5608.cliente;
 
 import br.ufsc.inf.leobr.cliente.Jogada;
 

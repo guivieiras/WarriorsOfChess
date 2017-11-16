@@ -34,8 +34,6 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
         proxy = Proxy.getInstance();
         proxy.addOuvinte(this);
     }
-
-
     
     public boolean conectar(String servidor, String nome){
         try {
@@ -86,6 +84,8 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
     public void desconectar(){
         try {
             proxy.desconectar();
+            isConectado = false;
+            isPartidaEmAndamento = false;
         } catch (NaoConectadoException ex) {
             Logger.getLogger(AtorNetGames.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -119,8 +119,7 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
     public void receberJogada(Jogada jogada) {
         Lance lance = (Lance) jogada;
         atorJogador.receberLance(lance);
-        vezDoJogadorLocal = true;
-        
+        vezDoJogadorLocal = true;    
     }
    
     @Override
@@ -131,17 +130,15 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
 
     @Override
     public void tratarPartidaNaoIniciada(String message) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        atorJogador.notificaMensagem(message);
     }
     
     public String obterNomeAdversario(){
         if (vezDoJogadorLocal)
             return proxy.obterNomeAdversario(2);
         else
-            return proxy.obterNomeAdversario(1);
-        
+            return proxy.obterNomeAdversario(1);      
     }
-        
 
     public boolean isVezDoJogadorLocal() {
         return vezDoJogadorLocal;
@@ -151,6 +148,13 @@ public class AtorNetGames implements br.ufsc.inf.leobr.cliente.OuvidorProxy {
         return isConectado;
     }
 
-    
-    
+    public void reiniciarPartida() {
+        try {
+            proxy.reiniciarPartida();
+        } catch (NaoConectadoException ex) {
+            Logger.getLogger(AtorNetGames.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NaoJogandoException ex) {
+            Logger.getLogger(AtorNetGames.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    } 
 }
