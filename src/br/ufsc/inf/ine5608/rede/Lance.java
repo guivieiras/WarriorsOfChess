@@ -15,7 +15,7 @@ import br.ufsc.inf.leobr.cliente.Jogada;
 public class Lance implements Jogada {
     private Posicao posInicial;
     private Posicao posFinal;
-    public TipoDeJogada tipoDeJogada;
+    private TipoDeJogada tipoDeJogada;
 
     public Posicao getPosInicial() {
         return posInicial;

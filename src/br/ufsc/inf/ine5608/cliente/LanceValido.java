@@ -15,11 +15,8 @@ import br.ufsc.inf.ine5608.rede.Posicao;
 public class LanceValido {
     private Lance lance;
     private Personagem atuante;
-    private Posicao posicaoFinal;
     private Personagem alvo;
     
-    private TipoDeJogada tipo;
-
     public Lance getLance() {
         return lance;
     }
@@ -36,29 +33,11 @@ public class LanceValido {
         this.atuante = atuante;
     }
 
-    public Posicao getPosicaoFinal() {
-        return posicaoFinal;
-    }
-
-    public void setPosicaoFinal(Posicao posicaoFinal) {
-        this.posicaoFinal = posicaoFinal;
-    }
-
     public Personagem getAlvo() {
         return alvo;
     }
 
     public void setAlvo(Personagem alvo) {
         this.alvo = alvo;
-    }
-
-    public TipoDeJogada getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(TipoDeJogada tipo) {
-        this.tipo = tipo;
-    }
-    
-    
+    }    
 }

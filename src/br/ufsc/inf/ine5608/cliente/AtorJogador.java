@@ -37,7 +37,7 @@ public class AtorJogador extends javax.swing.JFrame {
     private final JButton[][] posicoesBotoes = new JButton[13][10];
     private Posicao posInicial = null;
     private Posicao posFinal = null;
-    
+
     private Personagem atuante = null;
 
     private Color enemyColor = new Color(236, 121, 121);
@@ -68,7 +68,9 @@ public class AtorJogador extends javax.swing.JFrame {
     public void receberLance(Lance lance) {
         LanceValido lanceValido = tabuleiro.validarLanceRemoto(lance);
         if (lanceValido != null) {
-            label_vezDeQuem.setText(tabuleiro.getJogadorLocal().getNome());
+            Jogador local = tabuleiro.getJogadorLocal();
+            String nome = local.getNome();
+            label_vezDeQuem.setText(nome);
             atualizarTabuleiro(lanceValido);
         }
     }
@@ -111,7 +113,6 @@ public class AtorJogador extends javax.swing.JFrame {
                 jb.setBackground(Color.WHITE);
                 jb.setName(i + "," + j);
                 posicoesBotoes[i][j] = jb;
-                System.out.println(jb.getName());
 
                 jb.addActionListener((e) -> {
                     posicao_click(e);
@@ -125,7 +126,8 @@ public class AtorJogador extends javax.swing.JFrame {
     }
 
     private void posicao_click(ActionEvent e) {
-        if (atorNetGames.isVezDoJogadorLocal()) {
+        boolean isVezDoJogadorLocal = atorNetGames.isVezDoJogadorLocal();
+        if (isVezDoJogadorLocal) {
 
             JButton source = (JButton) e.getSource();
             System.out.println(source.getName());
@@ -133,22 +135,25 @@ public class AtorJogador extends javax.swing.JFrame {
             int x = Integer.valueOf(source.getName().split(",")[0]);
             int y = Integer.valueOf(source.getName().split(",")[1]);
             Personagem selected = tabuleiro.getPersonagemLocal(new Posicao(x, y));
-            
-            if (atuante == null ||(atuante != null && selected != null)) {
-                
-                if (atuante != null){
+
+            //Caso jogador tenha selecionado um personagem aliado ou não tenha selecionado nenhum
+            if (atuante == null || (atuante != null && selected != null)) {
+
+                if (atuante != null) {
                     limpaPossibilidades(atuante);
                     recolorirBackgrounds();
                 }
-                
+
                 atuante = selected;
-             
+
                 mostraPossibilidades(atuante);
-                
+
                 posInicial = new Posicao(x, y);
-                
-            } if (atuante != null && selected == null) {
-                
+
+            }
+            //Caso o jogador tenha selecionado um aliado e efetuado uma jogada (clicando em uma posição ou alvo
+            if (atuante != null && selected == null) {
+
                 posFinal = new Posicao(x, y);
 
                 Lance lance = new Lance();
@@ -158,13 +163,15 @@ public class AtorJogador extends javax.swing.JFrame {
                 LanceValido lanceValido = tabuleiro.validarLanceLocal(lance);
                 //Se lance for valido e enviado para o servidor com sucesso
                 if (lanceValido != null && enviarLance(lanceValido)) {
-                    label_vezDeQuem.setText(tabuleiro.getJogadorRemoto().getNome());
- 
+                    Jogador remoto = tabuleiro.getJogadorRemoto();
+                    String nome = remoto.getNome();
+                    label_vezDeQuem.setText(nome);
+
                     limpaPossibilidades(atuante);
                     recolorirBackgrounds();
-        
+
                     atualizarTabuleiro(lanceValido);
-                    
+
                     posFinal = null;
                     posInicial = null;
                     atuante = null;
@@ -172,7 +179,6 @@ public class AtorJogador extends javax.swing.JFrame {
             }
         } else {
             notificaMensagem("Espere sua vez de jogar!");
-
         }
     }
 
@@ -181,7 +187,9 @@ public class AtorJogador extends javax.swing.JFrame {
             JButton btn = posicoesBotoes[p.getPosicao().getX()][p.getPosicao().getY()];
             btn.setIcon(p.getIcon());
 
-            if (p.getOwner() == tabuleiro.getJogadorLocal()) {
+            Jogador owner = p.getOwner();
+            Jogador local = tabuleiro.getJogadorLocal();
+            if (owner == local) {
                 btn.setBackground(allyColor);
             } else {
                 btn.setBackground(enemyColor);
@@ -190,15 +198,18 @@ public class AtorJogador extends javax.swing.JFrame {
     }
 
     public boolean enviarLance(LanceValido lanceValido) {
-        if (atorNetGames.isVezDoJogadorLocal()) {
-            return atorNetGames.enviarLance(lanceValido.getLance());
+        boolean isVezDoJogadorLocal = atorNetGames.isVezDoJogadorLocal();
+        if (isVezDoJogadorLocal) {
+            Lance lance = lanceValido.getLance();
+            return atorNetGames.enviarLance(lance);
         }
         return false;
     }
 
     public void conexaoPerdida() {
         notificaMensagem("Conexão com o servidor perdida!");
-        if (tabuleiro.IsPartidaEmAndamento()) {
+        boolean isPartidaEmAndamento = tabuleiro.IsPartidaEmAndamento();
+        if (isPartidaEmAndamento) {
             tabuleiro.encerraPartida();
         }
         showMenu();
@@ -208,14 +219,16 @@ public class AtorJogador extends javax.swing.JFrame {
     public void encerraPartida(String message) {
         JOptionPane.showMessageDialog(this, message);
 
-        if (tabuleiro.IsPartidaEmAndamento()) {
+        boolean isPartidaEmAndamento = tabuleiro.IsPartidaEmAndamento();
+        if (isPartidaEmAndamento) {
             tabuleiro.encerraPartida();
         } else {
             JOptionPane.showMessageDialog(this, "Erro, partida foi encerrada mas não estava em andamento");
         }
 
         showMenu();
-        if (!atorNetGames.isConectado()) {
+        boolean isConectado = atorNetGames.isConectado();
+        if (!isConectado) {
             enableConnect();
         }
 
@@ -237,7 +250,8 @@ public class AtorJogador extends javax.swing.JFrame {
         panel_menu.setVisible(true);
         panel_jogo.setVisible(false);
 
-        if (atorNetGames.isConectado()) {
+        boolean isConectado = atorNetGames.isConectado();
+        if (isConectado) {
             disableConnect();
         } else {
             enableConnect();
@@ -259,74 +273,100 @@ public class AtorJogador extends javax.swing.JFrame {
     }
 
     private void matarPersonagem(Personagem alvo) {
-        posicoesBotoes[alvo.getPosicao().getX()][alvo.getPosicao().getY()].setIcon(null);
-        posicoesBotoes[alvo.getPosicao().getX()][alvo.getPosicao().getY()].setBackground(Color.WHITE);
+        Posicao posAlvo = alvo.getPosicao();
+        posicoesBotoes[posAlvo.getX()][posAlvo.getY()].setIcon(null);
+        posicoesBotoes[posAlvo.getX()][posAlvo.getY()].setBackground(Color.WHITE);
         alvo.matar();
     }
 
     private void moverPersonagem(Personagem atuante, Posicao posicao) {
-        JButton btnInicial = posicoesBotoes[atuante.getPosicao().getX()][atuante.getPosicao().getY()];
+        Posicao posAtuante = atuante.getPosicao();
+        JButton btnInicial = posicoesBotoes[posAtuante.getX()][posAtuante.getY()];
         btnInicial.setBackground(Color.WHITE);
         btnInicial.setIcon(null);
 
         atuante.setPosicao(posicao);
 
         JButton btnFinal = posicoesBotoes[posicao.getX()][posicao.getY()];
-        btnFinal.setIcon(atuante.getIcon());
+        ImageIcon icon = atuante.getIcon();
+        btnFinal.setIcon(icon);
 
-        if (atuante.getOwner() == tabuleiro.getJogadorLocal()) {
+        Jogador owner = atuante.getOwner();
+        Jogador local = tabuleiro.getJogadorLocal();
+        if (owner == local) {
             btnFinal.setBackground(allyColor);
         } else {
             btnFinal.setBackground(enemyColor);
         }
     }
 
-    private void atualizarTabuleiro(LanceValido lance) {
-        if (lance.getTipo() == TipoDeJogada.Ataque) {
-            matarPersonagem(lance.getAlvo());
+    private void atualizarTabuleiro(LanceValido lanceValido) {
+        Lance lance = lanceValido.getLance();
+        TipoDeJogada tipoDeJogada = lance.getTipoDeJogada();
+        if (tipoDeJogada == TipoDeJogada.Ataque) {
+            Personagem alvo = lanceValido.getAlvo();
+            matarPersonagem(alvo);
             Jogador vencedor = tabuleiro.testaFimDeJogo();
-            if (vencedor == tabuleiro.getJogadorLocal()) {
+            Jogador local = tabuleiro.getJogadorLocal();
+            Jogador remoto = tabuleiro.getJogadorRemoto();
+            if (vencedor == local) {
                 notificaMensagem("Você venceu! Ao clicar 'OK' a partida será reniciada");
                 atorNetGames.reiniciarPartida();
-            } else if (vencedor == tabuleiro.getJogadorRemoto()) {
+            } else if (vencedor == remoto) {
                 notificaMensagem("Você perdeu!");
             }
 
         } else {
-            moverPersonagem(lance.getAtuante(), lance.getPosicaoFinal());
+            Personagem atuante = lanceValido.getAtuante();
+            Posicao posicaoFinal = lance.getPosFinal();
+            moverPersonagem(atuante, posicaoFinal);
         }
     }
-    
+
     private void recolorirBackgrounds() {
-        for (Personagem p : tabuleiro.getJogadorRemoto().getPersonagens()) {
-            if (p.isVivo())
-            posicoesBotoes[p.getPosicao().getX()][p.getPosicao().getY()].setBackground(enemyColor);      
+        Jogador remoto = tabuleiro.getJogadorRemoto();
+        Personagem[] personagensRemoto = remoto.getPersonagens();
+        for (Personagem p : personagensRemoto) {
+            boolean isVivo = p.isVivo();
+            if (isVivo) {
+                Posicao posicao = p.getPosicao();
+                posicoesBotoes[posicao.getX()][posicao.getY()].setBackground(enemyColor);
+            }
         }
-        for (Personagem p : tabuleiro.getJogadorLocal().getPersonagens()) {
-            if (p.isVivo())
-            posicoesBotoes[p.getPosicao().getX()][p.getPosicao().getY()].setBackground(allyColor);
-        }       
+        Jogador local = tabuleiro.getJogadorLocal();
+        Personagem[] personagensLocal = local.getPersonagens();
+        for (Personagem p : personagensLocal) {
+            boolean isVivo = p.isVivo();
+            if (isVivo) {
+                Posicao posicao = p.getPosicao();
+                posicoesBotoes[posicao.getX()][posicao.getY()].setBackground(allyColor);
+            }
+        }
     }
-    
+
     private void mostraPossibilidades(Personagem atuante) {
-        for (int i = 0; i < Tabuleiro.LINHAS; i++){
-            for (int j = 0; j < Tabuleiro.COLUNAS; j++){
-                if (atuante.podeAtacar(new Posicao(i, j)))
+        for (int i = 0; i < Tabuleiro.LINHAS; i++) {
+            for (int j = 0; j < Tabuleiro.COLUNAS; j++) {
+                Posicao posicao = new Posicao(i, j);
+                if (atuante.podeAtacar(posicao)) {
                     posicoesBotoes[i][j].setBackground(Color.ORANGE);
-                else if (atuante.podeMovimentar(new Posicao(i, j)))
+                } else if (atuante.podeMovimentar(new Posicao(i, j))) {
                     posicoesBotoes[i][j].setBackground(Color.GREEN);
-                
+                }
+
             }
         }
     }
-    
+
     private void limpaPossibilidades(Personagem atuante) {
-        for (int i = 0; i < Tabuleiro.LINHAS; i++){
-            for (int j = 0; j < Tabuleiro.COLUNAS; j++){
-                if (atuante.podeAtacar(new Posicao(i, j)) || atuante.podeMovimentar(new Posicao(i, j)))
-                    posicoesBotoes[i][j].setBackground(Color.WHITE);          
+        for (int i = 0; i < Tabuleiro.LINHAS; i++) {
+            for (int j = 0; j < Tabuleiro.COLUNAS; j++) {
+                Posicao posicao = new Posicao(i, j);
+                if (atuante.podeAtacar(posicao) || atuante.podeMovimentar(posicao)) {
+                    posicoesBotoes[i][j].setBackground(Color.WHITE);
+                }
             }
-        }    
+        }
     }
 
     /**
@@ -462,16 +502,23 @@ public class AtorJogador extends javax.swing.JFrame {
 
     private void btn_conectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_conectarActionPerformed
         String nomeJogador = txt_field_player_name.getText();
-        if (!atorNetGames.isConectado() && atorNetGames.conectar("127.0.0.1", nomeJogador)) {
-            this.nomeJogador = nomeJogador;
-            disableConnect();
+        boolean isConectado = atorNetGames.isConectado();
+        if (!isConectado) {
+            boolean conectou = atorNetGames.conectar("127.0.0.1", nomeJogador);
+            if (conectou) {
+                this.nomeJogador = nomeJogador;
+                disableConnect();
+            }
         } else {
             JOptionPane.showMessageDialog(this, "Erro ao conectar-se ao servidor");
         }
     }//GEN-LAST:event_btn_conectarActionPerformed
 
     private void btn_desconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_desconectarActionPerformed
-        atorNetGames.desconectar();
+        boolean desconectado = atorNetGames.desconectar();
+        if (!desconectado){
+            notificaErro("Erro ao desconectar");
+        }
     }//GEN-LAST:event_btn_desconectarActionPerformed
 
     private void btn_iniciarPartidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_iniciarPartidaActionPerformed
@@ -527,11 +574,5 @@ public class AtorJogador extends javax.swing.JFrame {
     private javax.swing.JPanel panel_tabuleiro;
     private javax.swing.JTextField txt_field_player_name;
     // End of variables declaration//GEN-END:variables
-
- 
-
-
-
-
 
 }

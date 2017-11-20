@@ -28,10 +28,10 @@ public class Tabuleiro {
     private Jogador remoto;
 
     private AtorJogador tela;
-    
-     public static final int LINHAS = 11;
-     public static final int COLUNAS = 9;
-    
+
+    public static final int LINHAS = 11;
+    public static final int COLUNAS = 9;
+
     public Tabuleiro(AtorJogador tela) {
         this.tela = tela;
     }
@@ -52,9 +52,8 @@ public class Tabuleiro {
     }
 
     public Personagem[] inicializarPersonagens() {
-     
+
         Personagem[] personagens = new Personagem[6];
-       
 
         Personagem p = new Personagem(0, 2, TipoGuerreiro.Mage, jogador1);
         jogador1.setPersonagen(0, p);
@@ -86,17 +85,16 @@ public class Tabuleiro {
     public void iniciaPartida() {
         partidaEmAndamento = true;
     }
-    
-    
+
     Personagem getPersonagemLocal(Posicao posicao) {
         return getPersonagem(posicao, local);
     }
-    
+
     Personagem getPersonagemRemoto(Posicao posicao) {
         return getPersonagem(posicao, remoto);
     }
-    
-    Personagem getPersonagem(Posicao posicao, Jogador jogador){
+
+    Personagem getPersonagem(Posicao posicao, Jogador jogador) {
         for (Personagem p : jogador.getPersonagens()) {
             if (p.getPosicao().equals(posicao)) {
                 return p;
@@ -105,83 +103,90 @@ public class Tabuleiro {
         return null;
     }
 
-    
-    LanceValido validarLanceLocal(Lance lance){
+    LanceValido validarLanceLocal(Lance lance) {
         return validarLance(lance, local, remoto);
     }
+
     LanceValido validarLanceRemoto(Lance lance) {
         return validarLance(lance, remoto, local);
     }
 
     //Retorna nulo caso invalido
     LanceValido validarLance(Lance lance, Jogador jogando, Jogador adversario) {
-        Personagem atuante = null;  
+        Personagem atuante = null;
         //Pega personagem atuante
-        for (Personagem p : jogando.getPersonagens()) {
-            if (p.getPosicao().equals(lance.getPosInicial())) {
+        Personagem[] personagensAliados = jogando.getPersonagens();
+        for (Personagem p : personagensAliados) {
+            Posicao posPersonagem = p.getPosicao();
+            Posicao posInicial = lance.getPosInicial();
+            boolean clicouPersonagem = posPersonagem.equals(posInicial);
+            if (clicouPersonagem) {
                 atuante = p;
                 break;
             }
         }
-        if (atuante == null){
+        if (atuante == null) {
             tela.notificaErro("Erro, selecione um personagem seu.");
             return null;
         }
-        
+
         //Pega personagem alvo
         Personagem alvo = null;
         Personagem[] personagensDoAdversario = adversario.getPersonagens();
         for (Personagem p : personagensDoAdversario) {
-            if (p.getPosicao().equals(lance.getPosFinal())) {
+            Posicao posPersonagem = p.getPosicao();
+            Posicao posFinal = lance.getPosFinal();
+            boolean clicouPersonagem = posPersonagem.equals(posFinal);
+            if (clicouPersonagem) {
                 alvo = p;
                 break;
             }
         }
-        
+
         //Verifica se o alvo é aliado
         boolean isAlvoAliado = false;
-        Personagem[] personagensAliados = jogando.getPersonagens();
         for (Personagem p : personagensAliados) {
-            if (p.getPosicao().equals(lance.getPosFinal())) {
+            Posicao posPersonagem = p.getPosicao();
+            Posicao posFinal = lance.getPosFinal();
+            boolean clicouAliado = posPersonagem.equals(posFinal);
+            if (clicouAliado) {
                 isAlvoAliado = true;
                 break;
             }
         }
-        if (isAlvoAliado){
+        if (isAlvoAliado) {
             tela.notificaErro("Erro, personagem alvo não pode ser aliado.");
             return null;
         }
-        
+
         //Movimentação
-        if (alvo == null){
-            if (atuante.podeMovimentar(lance.getPosFinal())){
+        if (alvo == null) {
+            Posicao posFinal = lance.getPosFinal();
+            if (atuante.podeMovimentar(posFinal)) {
                 LanceValido lv = new LanceValido();
-                lv.setPosicaoFinal(lance.getPosFinal());
                 lv.setAtuante(atuante);
-                lv.setTipo(TipoDeJogada.Movimentacao);
+                lance.setTipoDeJogada(TipoDeJogada.Movimentacao);
                 lv.setLance(lance);
                 return lv;
-            }
-            else{
+            } else {
                 tela.notificaErro("Erro, personagem não pode se movimentar para esta posição.");
                 return null;
             }
-        }
-        //Ataque
+        } //Ataque
         else {
-            if (atuante.podeAtacar(lance.getPosFinal())){
+            Posicao posFinal = lance.getPosFinal();
+            if (atuante.podeAtacar(posFinal)) {
                 LanceValido lv = new LanceValido();
                 lv.setAlvo(alvo);
                 lv.setAtuante(atuante);
-                lv.setTipo(TipoDeJogada.Ataque);  
+                lance.setTipoDeJogada(TipoDeJogada.Ataque);
                 lv.setLance(lance);
                 return lv;
-            }
-            else{
+            } else {
                 tela.notificaErro("Erro, personagem não pode atacar personagem nesta posição.");
                 return null;
             }
-            
+
         }
     }
 
@@ -211,29 +216,29 @@ public class Tabuleiro {
 //        else
 //            return false;
 //    }
-    
     //Retonar o jogador vencedor, caso nenhum ganhe, retorna nulo
     Jogador testaFimDeJogo() {
         int mortos = 0;
-        for (Personagem p : jogador1.getPersonagens()){
-            if (!p.isVivo()){
+        for (Personagem p : jogador1.getPersonagens()) {
+            if (!p.isVivo()) {
                 mortos++;
             }
         }
-        if (mortos == 3)
+        if (mortos == 3) {
             return jogador2;
-        
+        }
+
         mortos = 0;
-        for (Personagem p : jogador2.getPersonagens()){
-            if (!p.isVivo()){
+        for (Personagem p : jogador2.getPersonagens()) {
+            if (!p.isVivo()) {
                 mortos++;
             }
         }
-        if (mortos == 3)
+        if (mortos == 3) {
             return jogador1;
-        
+        }
+
         return null;
     }
-
 
 }
