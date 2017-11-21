@@ -206,16 +206,6 @@ public class Tabuleiro {
         partidaEmAndamento = false;
     }
 
-//    private boolean isDentroDoTabuleiro(Posicao posFinal, Posicao posInicial) {
-//        if (posFinal.getX() >= 0 && posFinal.getX() < LINHAS &&
-//           posInicial.getX() >= 0 && posInicial.getX() < LINHAS &&
-//           posFinal.getY() >= 0 && posFinal.getY() < COLUNAS &&
-//           posInicial.getY() >= 0 && posInicial.getY() < COLUNAS)
-//            return true;
-//      
-//        else
-//            return false;
-//    }
     //Retonar o jogador vencedor, caso nenhum ganhe, retorna nulo
     Jogador testaFimDeJogo() {
         boolean jogador1Ganhou = jogador1.todosPersonagensMortos();

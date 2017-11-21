@@ -509,8 +509,11 @@ public class AtorJogador extends javax.swing.JFrame {
                 this.nomeJogador = nomeJogador;
                 disableConnect();
             }
+            else {
+                notificaErro("Erro ao conectar-se ao servidor");
+            }
         } else {
-            JOptionPane.showMessageDialog(this, "Erro ao conectar-se ao servidor");
+            notificaMensagem("Cliente já está conectado ao servidor"); 
         }
     }//GEN-LAST:event_btn_conectarActionPerformed
 
@@ -522,7 +525,10 @@ public class AtorJogador extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_desconectarActionPerformed
 
     private void btn_iniciarPartidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_iniciarPartidaActionPerformed
-        atorNetGames.iniciarPartidaRede();
+        boolean sucesso = atorNetGames.iniciarPartidaRede();
+        if (!sucesso){
+            notificaErro("Não foi possível iniciar a partida.");
+        }
     }//GEN-LAST:event_btn_iniciarPartidaActionPerformed
 
     /**
