@@ -35,5 +35,19 @@ public class Jogador {
     public void setPersonagen(int index, Personagem personagem) {
         personagens[index] = personagem;
     }
+    
+    public boolean todosPersonagensMortos(){
+        int mortos = 0;
+        for (Personagem p : personagens) {
+            boolean estaMorto = !p.isVivo();
+            if (estaMorto) {
+                mortos++;
+            }
+        }
+        if (mortos == 3) {
+            return true;
+        }
+        return false;
+    }
    
 }

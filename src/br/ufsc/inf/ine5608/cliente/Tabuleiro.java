@@ -218,26 +218,14 @@ public class Tabuleiro {
 //    }
     //Retonar o jogador vencedor, caso nenhum ganhe, retorna nulo
     Jogador testaFimDeJogo() {
-        int mortos = 0;
-        for (Personagem p : jogador1.getPersonagens()) {
-            if (!p.isVivo()) {
-                mortos++;
-            }
-        }
-        if (mortos == 3) {
-            return jogador2;
-        }
-
-        mortos = 0;
-        for (Personagem p : jogador2.getPersonagens()) {
-            if (!p.isVivo()) {
-                mortos++;
-            }
-        }
-        if (mortos == 3) {
+        boolean jogador1Ganhou = jogador1.todosPersonagensMortos();
+        if (jogador1Ganhou)
             return jogador1;
-        }
-
+        
+        boolean jogador2Ganhou = jogador2.todosPersonagensMortos();
+        if (jogador2Ganhou)
+            return jogador2;
+        
         return null;
     }
 
