@@ -208,13 +208,13 @@ public class Tabuleiro {
 
     //Retonar o jogador vencedor, caso nenhum ganhe, retorna nulo
     Jogador testaFimDeJogo() {
-        boolean jogador1Ganhou = jogador1.todosPersonagensMortos();
-        if (jogador1Ganhou)
-            return jogador1;
-        
-        boolean jogador2Ganhou = jogador2.todosPersonagensMortos();
+        boolean jogador2Ganhou = jogador1.todosPersonagensMortos();
         if (jogador2Ganhou)
             return jogador2;
+        
+        boolean jogador1Ganhou = jogador2.todosPersonagensMortos();
+        if (jogador1Ganhou)
+            return jogador1;
         
         return null;
     }
