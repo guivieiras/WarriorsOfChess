@@ -9,6 +9,7 @@ import br.ufsc.inf.ine5608.rede.AtorNetGames;
 import br.ufsc.inf.ine5608.rede.Lance;
 import br.ufsc.inf.ine5608.rede.Posicao;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -21,6 +22,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 /**
@@ -53,7 +55,6 @@ public class AtorJogador extends javax.swing.JFrame {
 
     private void inicializar() {
         atorNetGames = new AtorNetGames(this);
-        // this.setSize(260, 330);
         this.setContentPane(getContentPane());
         this.setTitle("Warriors Of Chess");
         tabuleiro = new Tabuleiro(this);
@@ -378,21 +379,87 @@ public class AtorJogador extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        panel_jogo = new javax.swing.JPanel();
-        btn_desconectar = new javax.swing.JButton();
-        label_vezDeQuem = new javax.swing.JLabel();
-        panel_tabuleiro = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
         panel_menu = new javax.swing.JPanel();
         btn_conectar = new javax.swing.JButton();
         txt_field_player_name = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         btn_regras = new javax.swing.JButton();
         btn_iniciarPartida = new javax.swing.JButton();
+        panel_jogo = new javax.swing.JPanel();
+        btn_desconectar = new javax.swing.JButton();
+        label_vezDeQuem = new javax.swing.JLabel();
+        panel_tabuleiro = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(500, 400));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panel_menu.setPreferredSize(new java.awt.Dimension(900, 900));
+
+        btn_conectar.setText("Conectar");
+        btn_conectar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_conectarActionPerformed(evt);
+            }
+        });
+
+        txt_field_player_name.setText("Player1");
+
+        jLabel1.setText("Nome");
+
+        btn_regras.setText("Regras");
+        btn_regras.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_regrasActionPerformed(evt);
+            }
+        });
+
+        btn_iniciarPartida.setText("Iniciar Partida");
+        btn_iniciarPartida.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_iniciarPartidaActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panel_menuLayout = new javax.swing.GroupLayout(panel_menu);
+        panel_menu.setLayout(panel_menuLayout);
+        panel_menuLayout.setHorizontalGroup(
+            panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panel_menuLayout.createSequentialGroup()
+                .addGroup(panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panel_menuLayout.createSequentialGroup()
+                        .addGap(285, 285, 285)
+                        .addComponent(jLabel1)
+                        .addGap(18, 18, 18)
+                        .addComponent(txt_field_player_name, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panel_menuLayout.createSequentialGroup()
+                        .addGap(261, 261, 261)
+                        .addGroup(panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btn_conectar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btn_iniciarPartida, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
+                            .addComponent(btn_regras, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addContainerGap(269, Short.MAX_VALUE))
+        );
+        panel_menuLayout.setVerticalGroup(
+            panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panel_menuLayout.createSequentialGroup()
+                .addGap(213, 213, 213)
+                .addGroup(panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(txt_field_player_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(26, 26, 26)
+                .addComponent(btn_conectar, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btn_iniciarPartida, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btn_regras, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(239, Short.MAX_VALUE))
+        );
+
+        jLabel1.getAccessibleContext().setAccessibleName("Nome:");
+
+        getContentPane().add(panel_menu, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 720, 690));
 
         panel_jogo.setPreferredSize(new java.awt.Dimension(900, 900));
 
@@ -441,62 +508,6 @@ public class AtorJogador extends javax.swing.JFrame {
 
         getContentPane().add(panel_jogo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 720, 690));
 
-        panel_menu.setPreferredSize(new java.awt.Dimension(900, 900));
-
-        btn_conectar.setText("Conectar");
-        btn_conectar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_conectarActionPerformed(evt);
-            }
-        });
-
-        txt_field_player_name.setText("Player1");
-
-        jLabel1.setText("Nome");
-
-        btn_regras.setText("Regras");
-
-        btn_iniciarPartida.setText("Iniciar Partida");
-        btn_iniciarPartida.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_iniciarPartidaActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout panel_menuLayout = new javax.swing.GroupLayout(panel_menu);
-        panel_menu.setLayout(panel_menuLayout);
-        panel_menuLayout.setHorizontalGroup(
-            panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panel_menuLayout.createSequentialGroup()
-                .addGap(217, 217, 217)
-                .addGroup(panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btn_iniciarPartida)
-                    .addComponent(btn_regras)
-                    .addComponent(btn_conectar)
-                    .addGroup(panel_menuLayout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(18, 18, 18)
-                        .addComponent(txt_field_player_name, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(362, Short.MAX_VALUE))
-        );
-        panel_menuLayout.setVerticalGroup(
-            panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panel_menuLayout.createSequentialGroup()
-                .addContainerGap(212, Short.MAX_VALUE)
-                .addGroup(panel_menuLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(txt_field_player_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(26, 26, 26)
-                .addComponent(btn_conectar)
-                .addGap(47, 47, 47)
-                .addComponent(btn_iniciarPartida)
-                .addGap(56, 56, 56)
-                .addComponent(btn_regras)
-                .addGap(260, 260, 260))
-        );
-
-        getContentPane().add(panel_menu, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 720, 690));
-
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -530,6 +541,15 @@ public class AtorJogador extends javax.swing.JFrame {
             notificaErro("Não foi possível iniciar a partida.");
         }
     }//GEN-LAST:event_btn_iniciarPartidaActionPerformed
+
+    private void btn_regrasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_regrasActionPerformed
+        try {           
+            Desktop.getDesktop().open(new File(getClass().getClassLoader().getResource("resources/regras.png").getFile()));
+        } catch (IOException ex) {
+            Logger.getLogger(AtorJogador.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }//GEN-LAST:event_btn_regrasActionPerformed
 
     /**
      * @param args the command line arguments
